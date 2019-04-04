@@ -1,0 +1,4 @@
+<?php
+return array(
+    'serverURL' => 'you.church.tools'
+);
