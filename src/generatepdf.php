@@ -119,7 +119,7 @@ if (count($outputCalendars) == 1) {
     $caption      = "Kalender";
     $printLegende = true;
 }
-$cal = new aschild\PDFCalendarBuilder\CalendarBuilder(intval($now->format("m")), intval($now->format("y")),
+$cal = new aschild\PDFCalendarBuilder\CalendarBuilder(intval($requestedMonth->format("m")), intval($requestedMonth->format("y")),
     $caption, $landscape, 'mm', $paperFormat);
 /* Customizations */
 $cal->setDayNames(array('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
