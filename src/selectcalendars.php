@@ -16,9 +16,9 @@ $errorMessage= null;
 $visibleCalendars;
 try
 {
-    $masterData= $api->getMasterData();
+    $calMasterData= $api->getCalendarMasterData();
 
-    $visibleCalendars= $masterData->getCalendars();
+    $visibleCalendars= $calMasterData->getCalendars();
     session_start();
     $_SESSION['userName'] = $userName;
     $_SESSION['password'] = $password;

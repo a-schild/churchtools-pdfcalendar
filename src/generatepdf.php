@@ -12,8 +12,8 @@ $serverURL= $_SESSION["serverURL"];
 $api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
         $userName, $password);
 
-$masterData = $api->getMasterData();
-$calendars  = $masterData->getCalendars();
+$calMasterData = $api->getCalendarMasterData();
+$calendars  = $calMasterData->getCalendars();
 //
 // All calendars
 // 
@@ -124,7 +124,7 @@ if ($printLegende) {
 }
 
 foreach ($entries as $entry) {
-    $calendar  = $api->getMasterData()->getCalendars()->getCalendar($entry->getCalendarID());
+    $calendar  = $calendars->getCalendar($entry->getCalendarID());
     $startDate = $entry->getStartDate();
     $endDate = $entry->getEndDate();
     $title     = $entry->getTitle();
