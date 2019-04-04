@@ -62,15 +62,15 @@ catch (Exception $e)
                     </div>
             <?php } ?>
                     <h5>Monat auswählen</h5>
-<!--                <div class="form-check form-check-inline">
+                <div class="form-check form-check-inline">
                     <label class="form-check-label"><input type="radio" name="sel_month" value="prev"  class="form-check-input" >Vorangehender Monat</label>
-                </div>-->
+                </div>
                 <div class="form-check form-check-inline">
                     <label class="form-check-label"><input type="radio" name="sel_month" value="now"  class="form-check-input" checked>Aktueller Monat</label>
                 </div>
-<!--                <div class="form-check form-check-inline">
+                <div class="form-check form-check-inline">
                     <label class="form-check-label"><input type="radio" name="sel_month" value="next" class="form-check-input">Nächster Monat</label>
-                </div>-->
+                </div>
                     <h5>Papierformat</h5>
                 <div class="form-check form-check-inline">
                     <label class="form-check-label"><input type="radio" name="sel_paper" value="A5"  class="form-check-input">A5</label>
