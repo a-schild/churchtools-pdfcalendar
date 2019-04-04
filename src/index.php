@@ -17,6 +17,12 @@ $serverURL= $configs["serverURL"];
         <h1>CT Calendarbuilder</h1>
         <h2>Login mit Ihrem Churchtools Account</h2>
         <form action="selectcalendars.php" method="post">
+            <?php if (!isset($serverURL)) { ?>
+             <div class="form-group row">
+                 <label for="serverURL" class="col-sm-2 col-form-label">Server URL</label>
+                <input type="text" name="serverURL" required="required">
+             </div>
+            <?php } ?>
              <div class="form-group row">
                  <label for="email" class="col-sm-2 col-form-label">E-Mail</label>
                 <input type="text" name="email" required="required">
@@ -28,7 +34,9 @@ $serverURL= $configs["serverURL"];
              <div class="form-group row">
                  <label for="submit" class="col-sm-2 col-form-label"></label>
             <input type="submit" value="Anmelden" name="submit" class="btn btn-primary">
+            <?php if (isset($serverURL)) { ?>
             <input type="hidden" name="serverURL" value="<?= $serverURL ?>" >
+            <?php } ?>
              </div>
         </form>
         </div>
