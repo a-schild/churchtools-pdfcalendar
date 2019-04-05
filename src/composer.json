@@ -3,16 +3,9 @@
     "description":"Generates pdf calendars from churchtool servers",
     "type": "project",
     "license": "proprietary",
-    "repositories":
-    [
-        {
-            "type": "vcs",
-            "url": "http://github.com/a-schild/churchtools-api"
-        }
-    ],
     "require": {
         "php": "^7.3",
         "a-schild/pdfcalendarbuilder": ">=1.0.3",
-        "vineyardkoeln/churchtools-api": "dev-master" 
+        "vineyardkoeln/churchtools-api": ">=0.4.0" 
     }
 }

@@ -158,6 +158,6 @@ foreach ($entries as $entry) {
 }
 
 $cal->buildCalendar();
-$cal->writeTimestamp("Stand ".strftime('%d.%m.%Y %H:%M'), $cal->getPageWidth()-105, 10, 100);
-$cal->Output("calendar.pdf", "I");
+$cal->writeTimestamp("@".strftime('%d.%m.%Y %H:%M'), $cal->getPageWidth()-105, 10, 100);
+$cal->Output("calendar-".$requestedMonth->format("y") .'-'.$requestedMonth->format("m").".pdf", "I");
 
