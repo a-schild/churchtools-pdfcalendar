@@ -8,14 +8,13 @@ $serverURL= filter_input(INPUT_POST, "serverURL");
 $userName= filter_input(INPUT_POST, "email");
 $password= filter_input(INPUT_POST, "password");
 
-$api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
-        $userName, $password);
-
 $hasError= false;
 $errorMessage= null;
 $visibleCalendars;
 try
 {
+    $api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
+            $userName, $password);
     $calMasterData= $api->getCalendarMasterData();
 
     $visibleCalendars= $calMasterData->getCalendars();
@@ -45,7 +44,7 @@ catch (Exception $e)
             <?php if ($hasError) { ?>
             <h2>Login fehlgeschlagen</h2>
             <div class="alert alert-danger" role="alert">
-            Error in login <?= $errorMessage ?>
+            Error in login: <?= $errorMessage ?>
             </div>
             <div>
                 <a href="index.php" class="btn btn-primary">Zum Login</a>

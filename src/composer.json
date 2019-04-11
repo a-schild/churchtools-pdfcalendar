@@ -1,11 +1,26 @@
 {
     "name": "a-schild/ct-pdfcalendar",
     "description":"Generates pdf calendars from churchtool servers",
+    "keywords": ["pdf", "calendar", "ct", "churchtools"],
     "type": "project",
-    "license": "proprietary",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "André Schild",
+            "email": "andre@schild.ws",
+            "homepage": "https://github.com/a-schild",
+            "role": "Developer"
+        }],
+    "repositories":
+    [
+        {
+            "type": "vcs",
+            "url": "http://github.com/a-schild/churchtools-api"
+        }
+    ],
     "require": {
         "php": "^7.3",
-        "a-schild/pdfcalendarbuilder": ">=1.0.3",
-        "vineyardkoeln/churchtools-api": ">=0.4.0" 
+        "a-schild/pdfcalendarbuilder": ">=1.0.5",
+        "vineyardkoeln/churchtools-api": "dev-master" 
     }
 }
