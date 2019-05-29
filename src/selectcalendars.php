@@ -35,8 +35,9 @@ catch (Exception $e)
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>Calendarbuilder login</title>
+        <title>Churchtools Calendarbuilder</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <div class="container">
@@ -52,25 +53,49 @@ catch (Exception $e)
             <?php } else { ?>
             <h5>Kalender zum generieren anwählen</h5>
             <form action="generatepdf.php" target="_blank" method="post">
+                <div class="row">
+                    <div class="col-6 calendarcol">
             <?php $calIDS= $visibleCalendars->getCalendarIDS(true);
                     foreach( $calIDS as $calID) {
                         $cal=$visibleCalendars->getCalendar($calID);
                         ?>
-                 <div class="form-check" style="background-color: <?= $cal->getColor()?>; color: <?= $cal->getTextColor()?>">
+                 <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color: <?= $cal->getTextColor()?>">
                         <label class="form-check-label" for="CAL_<?= $cal->getID() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getID() ?>" name="CAL_<?= $cal->getID() ?>" value="CAL_<?= $cal->getID() ?>"><?= $cal->getName() ?></label>
                     </div>
             <?php } ?>
-                    <h5>Monat auswählen</h5>
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label"><input type="radio" name="sel_month" value="prev"  class="form-check-input" >Vorangehender Monat</label>
+                    </div>
                 </div>
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label"><input type="radio" name="sel_month" value="now"  class="form-check-input" checked>Aktueller Monat</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <label class="form-check-label"><input type="radio" name="sel_month" value="next" class="form-check-input">Nächster Monat</label>
-                </div>
-                    <h5>Papierformat</h5>
+                    <h5>Monat / Jahr auswählen</h5>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="prev"  class="form-check-input" >Vorangehender Monat</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="now"  class="form-check-input" checked>Aktueller Monat</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="next" class="form-check-input">Nächster Monat</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">(1 Seite)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="current_year"  class="form-check-input">Aktuelles Jahr</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="next_year" class="form-check-input">Nächstes Jahr</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">(12 Seiten)</label>
+                            </div>
+                        </div>
+                    </div>
+                <h5>Papierformat</h5>
                 <div class="form-check form-check-inline">
                     <label class="form-check-label"><input type="radio" name="sel_paper" value="A5"  class="form-check-input">A5</label>
                 </div>
@@ -94,12 +119,11 @@ catch (Exception $e)
                         <input type="checkbox" class="form-check-input" id="PrintEND" name="PrintEND" value="PrintEND">
                         <label class="form-check-label" for="PrintEND">Endzeit anzeigen</label>
                 </div>
-             <div class="form-group row">
-                 <input type="submit" value="PDF erstellen" class="btn btn-primary">
+             <div class="form-group row mt-2 ml-1">
+                 <input type="submit" value="PDF erstellen" class="btn btn-primary mr-1">
+                 <a href="index.php" class="btn btn-secondary mr-1">Abmelden</a>
              </div>
             </form>
-            <hr />
-            <div class="row"><a href="index.php" class="btn btn-secondary">Abmelden</a></div>
             <?php } ?>
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

@@ -1,5 +1,6 @@
 # churchtools-pdfcalendar
 Generate PDF month calendars from churchtools
+With version 1.1 you can also generate full-year calendars, consisting of 12 pages
 
 Currently the UI is in german only
 
@@ -7,10 +8,9 @@ Currently the UI is in german only
 - php 7.3 or better
 - Churchtools (Tested with 3.43.1)
 
-
 ## Installation as compplete package
 - Download and expand the archive to your web server
-  https://github.com/a-schild/churchtools-pdfcalendar/releases/download/1.0/churchtools-pdfcalendar-1.0.zip
+  https://github.com/a-schild/churchtools-pdfcalendar/releases/download/1.1/churchtools-pdfcalendar-1.1.zip
 - Copy `config.sample` to `config.php`
 - Modify the serverURL to match your churchtool server name
 

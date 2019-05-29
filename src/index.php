@@ -1,7 +1,14 @@
 <?php
 declare(strict_types=1); 
 session_start();
-$configs = include('config.php');
+if (file_exists ( 'config.php' ) )
+{
+    $configs = include('config.php');
+}
+else
+{
+    $configs= null;
+}
 $serverURL= $configs["serverURL"];
 ?>
 <!doctype html>
