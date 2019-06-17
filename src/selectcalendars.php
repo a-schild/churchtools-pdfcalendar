@@ -16,8 +16,13 @@ try
     $api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
             $userName, $password);
     $calMasterData= $api->getCalendarMasterData();
+    $resourceMasterData= $api->getResourceMasterData();
 
     $visibleCalendars= $calMasterData->getCalendars();
+    $visibleResourceTypes= $resourceMasterData->getResourceTypes();
+    $visibleResources= $resourceMasterData->getResources();
+    
+
     session_start();
     $_SESSION['userName'] = $userName;
     $_SESSION['password'] = $password;
@@ -61,6 +66,23 @@ catch (Exception $e)
                         ?>
                  <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color: <?= $cal->getTextColor()?>">
                         <label class="form-check-label" for="CAL_<?= $cal->getID() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getID() ?>" name="CAL_<?= $cal->getID() ?>" value="CAL_<?= $cal->getID() ?>"><?= $cal->getName() ?></label>
+                    </div>
+            <?php } ?>
+                    </div>
+                    <div class="col-6 calendarcol">
+            <?php $resourceTypesIDS= $visibleResourceTypes->getResourceTypesIDS(true);
+                    foreach( $resourceTypesIDS as $resTypeID) {
+                        $resType=$visibleResourceTypes->getResourceType($resTypeID);
+                        ?>
+                    <div class="calendar form-check" >
+                        <?= $resType->getDescription() ?><br>
+                        <?php 
+                            $resourceIDS= $visibleResources->getResourceIDSOfType($resTypeID, true);
+                            foreach( $resourceIDS as $resourceID) {
+                                $resource=$visibleResources->getResource($resourceID);
+                                ?>
+                        <?= $resource->getDescription() ?><br/>
+                            <?php } ?>
                     </div>
             <?php } ?>
                     </div>
