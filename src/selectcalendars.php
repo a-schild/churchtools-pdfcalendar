@@ -42,7 +42,38 @@ catch (Exception $e)
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Churchtools Calendarbuilder</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />        
         <link rel="stylesheet" href="styles.css">
+        <script>
+            function toggleResTypeCat(idToToggle)
+            {
+                    //var divTitle= document.getElementById("ID_"+idToToggle+"_TITLE");
+                    var divPlus= document.getElementById("REST_"+idToToggle+"_PLUS");
+                    var divContent= document.getElementById("REST_WRAPPER_"+idToToggle);
+                    if (divContent.style.display === "none" || divContent.style.display === "" )
+                    {
+                            divPlus.classList.add("fa-minus-square");
+                            divPlus.classList.remove("fa-plus-square");
+                            divContent.style.display= "block";
+                    }
+                    else
+                    {
+                            divPlus.classList.remove("fa-minus-square");
+                            divPlus.classList.add("fa-plus-square");
+                            divContent.style.display = "none";
+                    }
+            }
+            function toggleResType(resTypeIdToToggle)
+            {
+                var headerCB= document.getElementById("REST_"+resTypeIdToToggle);
+                var isChecked= headerCB.checked;
+                var restCBS= document.getElementsByClassName("RES_"+resTypeIdToToggle);
+                Array.prototype.forEach.call(restCBS, function(el) {
+                    // Do stuff here
+                    el.checked= isChecked;
+                });
+            }
+            </script>
     </head>
     <body>
         <div class="container">
@@ -56,10 +87,10 @@ catch (Exception $e)
                 <a href="index.php" class="btn btn-primary">Zum Login</a>
             </div>
             <?php } else { ?>
-            <h5>Kalender zum generieren anwählen</h5>
             <form action="generatepdf.php" target="_blank" method="post">
                 <div class="row">
                     <div class="col-6 calendarcol">
+                        <h5>Kalender</h5>
             <?php $calIDS= $visibleCalendars->getCalendarIDS(true);
                     foreach( $calIDS as $calID) {
                         $cal=$visibleCalendars->getCalendar($calID);
@@ -69,22 +100,34 @@ catch (Exception $e)
                     </div>
             <?php } ?>
                     </div>
-                    <div class="col-6 calendarcol">
+                    <div class="col-6 resourcecol">
+                        <h5>Resourcen</h5>
             <?php $resourceTypesIDS= $visibleResourceTypes->getResourceTypesIDS(true);
                     foreach( $resourceTypesIDS as $resTypeID) {
                         $resType=$visibleResourceTypes->getResourceType($resTypeID);
+                        $resourceIDS= $visibleResources->getResourceIDSOfType($resTypeID, true);
+                        if (sizeof($resourceIDS) >0) { // Hide empty types
                         ?>
-                    <div class="calendar form-check" >
-                        <?= $resType->getDescription() ?><br>
+                    <div class="resource form-check"  >
+                        <div class="resourcetype">
+                            <input type="checkbox" class="form-check-input" id="REST_<?= $resType->getID()?>" onclick="toggleResType('<?= $resType->getID()?>')"/>
+                            <a href="#"  onclick="toggleResTypeCat('<?= $resType->getID() ?>'); return false;">
+                                <h6 class="col-10"><?= $resType->getDescription() ?></h6>
+                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= $resType->getID()?>_PLUS"></i>
+                            </a>
+                        </div>
+                        <div id="REST_WRAPPER_<?= $resType->getID()?>" style="display: none;" class="rest-wrapper">
                         <?php 
-                            $resourceIDS= $visibleResources->getResourceIDSOfType($resTypeID, true);
                             foreach( $resourceIDS as $resourceID) {
                                 $resource=$visibleResources->getResource($resourceID);
                                 ?>
-                        <?= $resource->getDescription() ?><br/>
+                            &nbsp;<label class="form-check-label" for="RES_<?= $resource->getID() ?>">
+                                <input type="checkbox" class="form-check-input RES_<?= $resType->getID()?>" id="RES_<?= $resource->getID() ?>" name="RES_<?= $resource->getID() ?>" value="RES_<?= $resource->getID() ?>">
+                                        <?= $resource->getDescription() ?></label><br/>
                             <?php } ?>
+                        </div>
                     </div>
-            <?php } ?>
+                    <?php } } ?>
                     </div>
                 </div>
                     <h5>Monat / Jahr auswählen</h5>

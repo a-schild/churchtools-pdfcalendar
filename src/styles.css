@@ -7,9 +7,33 @@ and open the template in the editor.
     Created on : 24.05.2019, 23:31:51
     Author     : andre
 */
+a:hover {
+    text-decoration: none;    
+}
 
 .calendarcol {
     /* margin: 2px; */
+}
+
+.resourcecol {
+    /* nothing */
+}
+
+.resourcecol .form-check {
+    padding-left: 0;
+}
+
+.resourcecol .form-check label .form-check-input {
+/*    margin-left: 0.5rem;*/
+}
+
+.resourcecol .form-check label  {
+    padding-left: 2rem;
+    width: 95%;
+}
+
+.resourcecol .form-check label:hover  {
+    background-color: #eeeeee;
 }
 
 .calendar {
@@ -17,4 +41,24 @@ and open the template in the editor.
     padding-bottom: 3px;
     padding-left: 1.8rem;
     margin-bottom: 2px;
+}
+
+.resourcetype
+{
+    background-color: #cccccc;
+    padding-left: 2rem;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-bottom: 2px;
+}
+
+.resourcetype h6 {
+    display: inline-block;
+}
+
+.rest-wrapper {
+    border-right: 1px solid #cccccc;
+    border-left: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+    margin-top: -2px;
 }
