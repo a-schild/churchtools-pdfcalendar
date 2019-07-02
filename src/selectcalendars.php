@@ -31,7 +31,7 @@ try
 //    var_dump($groups);
 
     $groupMeetings= $api->getGroupMeetings(138);
-    var_dump($groupMeetings);
+//    var_dump($groupMeetings);
     
     $visibleCalendars= $calMasterData->getCalendars();
     $visibleResourceTypes= $resourceMasterData->getResourceTypes();

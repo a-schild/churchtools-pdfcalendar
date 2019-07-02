@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ec96d463c602e1e27dc9ee7e45e4a91",
+    "content-hash": "f85142fa2450f80c64567015433225d3",
     "packages": [
         {
             "name": "a-schild/pdfcalendarbuilder",
-            "version": "1.0.9",
+            "version": "1.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/a-schild/pdfcalendarbuilder.git",
-                "reference": "99aad0f6ff3f7e25c087fc00d11a3888518e202a"
+                "reference": "9bbdb707bff4b363ccd76bde8d9a61ea02152b97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/a-schild/pdfcalendarbuilder/zipball/99aad0f6ff3f7e25c087fc00d11a3888518e202a",
-                "reference": "99aad0f6ff3f7e25c087fc00d11a3888518e202a",
+                "url": "https://api.github.com/repos/a-schild/pdfcalendarbuilder/zipball/9bbdb707bff4b363ccd76bde8d9a61ea02152b97",
+                "reference": "9bbdb707bff4b363ccd76bde8d9a61ea02152b97",
                 "shasum": ""
             },
             "require": {

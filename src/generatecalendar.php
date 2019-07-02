@@ -126,6 +126,7 @@ try
 
         $cal= null;
         $sheet= null;
+        $rowPos= 1;
         for ($loopMonth= $startMonth; $loopMonth <= $endMonth; $loopMonth++ )
         {
             $requestedMonth->setDate($requestedYear, $loopMonth, 1);
@@ -155,7 +156,6 @@ try
 
             $calEntries= null;
             $resEntries= null;
-            $rowPos= 1;
             if (sizeof($outputCalendars) > 0)
             {
                 // Get calendar entries for month
@@ -216,8 +216,21 @@ try
                     // Make XLSX
                     $cal = new Spreadsheet();
                     $sheet = $cal->getActiveSheet();
-                    $sheet->setCellValue('A1', 'Kalender');
-                    $rowPos= 2;
+                    $sheet->setCellValue('A'.$rowPos++, $caption);
+                    $myCol= 'A';
+                    if ($printLegende)
+                    {
+                        $sheet->setCellValue($myCol.$rowPos, 'Kalender');
+                        $myCol++;
+                    }
+                    $sheet->setCellValue($myCol++.$rowPos, 'Start');
+                    if ($printEND)
+                    {
+                        $sheet->setCellValue($myCol++.$rowPos, 'Ende');
+                    }
+                    $sheet->setCellValue($myCol++.$rowPos, 'Titel');
+                    $sheet->setCellValue($myCol++.$rowPos, 'Bemerkung');
+                    $rowPos++;
                 }
             }
             else
@@ -258,10 +271,28 @@ try
                     }
                     else
                     {
-                        $sheet->setCellValue('A'.$rowPos, $startDate);
-                        $sheet->setCellValue('B'.$rowPos, $endDate);
-                        $sheet->setCellValue('C'.$rowPos, $title);
-                        $sheet->setCellValue('D'.$rowPos, $remarks);
+                        $myCol= 'A';
+                        if ($printLegende)
+                        {
+                            $sheet->setCellValue($myCol.$rowPos, $calendar->getName());
+                            $myCol++;
+                        }
+                        $sheet->setCellValue($myCol++.$rowPos, $startDate);
+                        if ($printEND)
+                        {
+                            $sheet->setCellValue($myCol++.$rowPos, $endDate);
+                        }
+                        $sheet->setCellValue($myCol++.$rowPos, $title);
+                        $sheet->setCellValue($myCol++.$rowPos, $remarks);
+                        if ($printLegende)
+                        {
+                            $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFont()->getColor()->
+                                    setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html($calendar->getTextColor(), false));                            
+                            $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFill()->
+                                    setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->
+                                    getStartColor()->
+                                    setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html($calendar->getColor(), false));
+                        }
                         $rowPos++;
                     }
                 }
@@ -285,10 +316,18 @@ try
                     }
                     else
                     {
-                        $sheet->setCellValue('A'.$rowPos, $startDate);
-                        $sheet->setCellValue('B'.$rowPos, $endDate);
-                        $sheet->setCellValue('C'.$rowPos, $title);
-                        $sheet->setCellValue('D'.$rowPos, $remark);
+                        $myCol= 'A';
+                        if ($printLegende)
+                        {
+                            $sheet->setCellValue($myCol++.$rowPos, $resource->getDescription());
+                        }
+                        $sheet->setCellValue($myCol++.$rowPos, $startDate);
+                        if ($printEND)
+                        {
+                            $sheet->setCellValue($myCol++.$rowPos, $endDate);
+                        }
+                        $sheet->setCellValue($myCol++.$rowPos, $title);
+                        $sheet->setCellValue($myCol++.$rowPos, $remark);
                         $rowPos++;
                     }
                 }
