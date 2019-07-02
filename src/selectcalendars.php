@@ -131,7 +131,7 @@ catch (Exception $e)
                 <a href="index.php" class="btn btn-primary">Zum Login</a>
             </div>
             <?php } else { ?>
-            <form action="generatepdf.php" target="_blank" method="post">
+            <form action="generatecalendar.php" target="_blank" method="post">
                 <div class="row">
                     <div class="col-4 calendarcol">
                         <h5><?= $calMasterData->getCalendarModuleName() ?></h5>
@@ -282,7 +282,8 @@ catch (Exception $e)
                         <label class="form-check-label" for="PrintEND">Endzeit anzeigen</label>
                 </div>
              <div class="form-group row mt-2 ml-1">
-                 <input type="submit" value="PDF erstellen" class="btn btn-primary mr-1">
+                 <input type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1">
+                 <input type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1">
                  <a href="index.php" class="btn btn-secondary mr-1">Abmelden</a>
              </div>
             </form>

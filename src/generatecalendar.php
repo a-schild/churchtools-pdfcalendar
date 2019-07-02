@@ -7,6 +7,13 @@ use \ChurchTools\Api\Tools\BookingTools;
 
 $printLegende = true;
 
+$buildPDF= true;
+$buildXLSX= true;
+if (isset($_REQUEST['outputFormatXLSX']))
+{
+    $buildPDF= false;
+    $buildXLSX= true;
+}
 
 session_start();
 
@@ -251,7 +258,7 @@ try
             $cal->buildCalendar();
             $cal->writeTimestamp("@".strftime('%d.%m.%Y %H:%M'), $cal->getPageWidth()-105, 10, 100);
         }
-        $cal->Output("calendar-".$requestedMonth->format("y") .'-'.$requestedMonth->format("m").".pdf", "I");
+        $cal->Output("calendar-".$requestedMonth->format("Y") .'-'.$requestedMonth->format("m").".pdf", "I");
     }
     else
     { ?>
