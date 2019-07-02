@@ -20,6 +20,7 @@ try
             $userName, $password);
 
     $calMasterData = $api->getCalendarMasterData();
+    $firstDayInWeek= $calMasterData->getFirstDayInWeek();
     $resourceMasterData= $api->getResourceMasterData();
     
     $calendars  = $calMasterData->getCalendars();
@@ -189,7 +190,7 @@ try
                     'Freitag', 'Samstag'));
                 $cal->setMonthNames(array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
                     'August', 'September', 'Oktober', 'November', 'Dezember'));
-                $cal->setWeekStarts(1); // Europa
+                $cal->setWeekStarts($firstDayInWeek); 
                 // $cal->setNumberFontSize(25); Für A3
                 //$cal->setMargins(5,5,5,5);
                 $cal->setResizeRowHeightsIfNeeded(true);
