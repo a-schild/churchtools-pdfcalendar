@@ -3,6 +3,8 @@ require __DIR__.'/vendor/autoload.php';
 
 use \ChurchTools\Api\Tools\CalendarTools;
 use \ChurchTools\Api\Tools\BookingTools;
+use \PhpOffice\PhpSpreadsheet\Spreadsheet;
+use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 
 $printLegende = true;
@@ -27,7 +29,6 @@ try
             $userName, $password);
 
     $calMasterData = $api->getCalendarMasterData();
-    $firstDayInWeek= $calMasterData->getFirstDayInWeek();
     $resourceMasterData= $api->getResourceMasterData();
     
     $calendars  = $calMasterData->getCalendars();
@@ -124,6 +125,7 @@ try
         }
 
         $cal= null;
+        $sheet= null;
         for ($loopMonth= $startMonth; $loopMonth <= $endMonth; $loopMonth++ )
         {
             $requestedMonth->setDate($requestedYear, $loopMonth, 1);
@@ -153,6 +155,7 @@ try
 
             $calEntries= null;
             $resEntries= null;
+            $rowPos= 1;
             if (sizeof($outputCalendars) > 0)
             {
                 // Get calendar entries for month
@@ -190,28 +193,42 @@ try
             }
             if ($cal == null)
             {
-                $cal = new aschild\PDFCalendarBuilder\CalendarBuilder(intval($requestedMonth->format("m")), intval($requestedMonth->format("Y")),
-                    $caption, $landscape, 'mm', $paperFormat);
-                /* Customizations */
-                $cal->setDayNames(array('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
-                    'Freitag', 'Samstag'));
-                $cal->setMonthNames(array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
-                    'August', 'September', 'Oktober', 'November', 'Dezember'));
-                $cal->setWeekStarts($firstDayInWeek); 
-                // $cal->setNumberFontSize(25); Für A3
-                //$cal->setMargins(5,5,5,5);
-                $cal->setResizeRowHeightsIfNeeded(true);
-                $cal->setShrinkFontSizeIfNeeded(true);
-                $cal->setMargins(5,5,5,5);
-                $cal->setPrintEndTime($printEND);
-                $cal->startPDF();
+                if ($buildPDF)
+                {
+                    $cal = new aschild\PDFCalendarBuilder\CalendarBuilder(intval($requestedMonth->format("m")), intval($requestedMonth->format("Y")),
+                        $caption, $landscape, 'mm', $paperFormat);
+                    /* Customizations */
+                    $cal->setDayNames(array('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
+                        'Freitag', 'Samstag'));
+                    $cal->setMonthNames(array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
+                        'August', 'September', 'Oktober', 'November', 'Dezember'));
+                    $cal->setWeekStarts(1); // Europa
+                    // $cal->setNumberFontSize(25); Für A3
+                    //$cal->setMargins(5,5,5,5);
+                    $cal->setResizeRowHeightsIfNeeded(true);
+                    $cal->setShrinkFontSizeIfNeeded(true);
+                    $cal->setMargins(5,5,5,5);
+                    $cal->setPrintEndTime($printEND);
+                    $cal->startPDF();
+                }
+                else
+                {
+                    // Make XLSX
+                    $cal = new Spreadsheet();
+                    $sheet = $cal->getActiveSheet();
+                    $sheet->setCellValue('A1', 'Kalender');
+                    $rowPos= 2;
+                }
             }
             else
             {
-                $cal->addMonth(intval($requestedMonth->format("m")), intval($requestedMonth->format("Y")), $caption);
+                if ($buildPDF)
+                {
+                    $cal->addMonth(intval($requestedMonth->format("m")), intval($requestedMonth->format("Y")), $caption);
+                }
             }
 
-            if ($printLegende) {
+            if ($printLegende && $buildPDF) {
                 if (sizeof($outputCalendars) > 0)
                 {
                     foreach ($outputCalendars as $cid) {
@@ -234,8 +251,19 @@ try
                     if ($remarks != null && strlen(trim($remarks)) > 0) {
                         $title = $title.' ('.$remarks.')';
                     }
-                    $cal->addEntry($startDate, $endDate, $title, $calendar->getTextColor(),
-                        $calendar->getColor());
+                    if ($buildPDF)
+                    {
+                        $cal->addEntry($startDate, $endDate, $title, $calendar->getTextColor(),
+                            $calendar->getColor());
+                    }
+                    else
+                    {
+                        $sheet->setCellValue('A'.$rowPos, $startDate);
+                        $sheet->setCellValue('B'.$rowPos, $endDate);
+                        $sheet->setCellValue('C'.$rowPos, $title);
+                        $sheet->setCellValue('D'.$rowPos, $remarks);
+                        $rowPos++;
+                    }
                 }
             }
 
@@ -251,14 +279,43 @@ try
                     if ($remarks != null && strlen(trim($remarks)) > 0) {
                         $title = $title.' ('.$remarks.')';
                     }
-                    $cal->addEntry($startDate, $endDate, $title);
+                    if ($buildPDF)
+                    {
+                        $cal->addEntry($startDate, $endDate, $title);
+                    }
+                    else
+                    {
+                        $sheet->setCellValue('A'.$rowPos, $startDate);
+                        $sheet->setCellValue('B'.$rowPos, $endDate);
+                        $sheet->setCellValue('C'.$rowPos, $title);
+                        $sheet->setCellValue('D'.$rowPos, $remark);
+                        $rowPos++;
+                    }
                 }
             }
             
-            $cal->buildCalendar();
-            $cal->writeTimestamp("@".strftime('%d.%m.%Y %H:%M'), $cal->getPageWidth()-105, 10, 100);
+            if ($buildPDF)
+            {
+                $cal->buildCalendar();
+                $cal->writeTimestamp("@".strftime('%d.%m.%Y %H:%M'), $cal->getPageWidth()-105, 10, 100);
+            }
+            else
+            {
+                $sheet->setCellValue('A'.$rowPos, "@".strftime('%d.%m.%Y %H:%M'));
+            }
         }
-        $cal->Output("calendar-".$requestedMonth->format("Y") .'-'.$requestedMonth->format("m").".pdf", "I");
+        if ($buildPDF)
+        {
+            $cal->Output("calendar-".$requestedMonth->format("Y") .'-'.$requestedMonth->format("m").".pdf", "I");
+        }
+        else
+        {
+            $writer = new Xlsx($cal);
+            header('Content-Type:vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition:attachment;filename="'."calendar-".$requestedMonth->format("Y") .'-'.$requestedMonth->format("m").'.xlsx"');
+            header('Cache-Control:max-age=0');
+            $writer->save('php://output');
+        }
     }
     else
     { ?>
