@@ -15,24 +15,25 @@ a:hover {
     /* margin: 2px; */
 }
 
-.resourcecol {
+.resourcecol, .servicecol {
     /* nothing */
+    display: none;
 }
 
-.resourcecol .form-check {
+.resourcecol .form-check, .servicecol .form-check {
     padding-left: 0;
 }
 
-.resourcecol .form-check label .form-check-input {
+.resourcecol .form-check label .form-check-input, .servicecol  .form-check label .form-check-input {
 /*    margin-left: 0.5rem;*/
 }
 
-.resourcecol .form-check label  {
+.resourcecol .resourcetype .form-check label, .servicecol .servicegroup .form-check label   {
     padding-left: 2rem;
     width: 95%;
 }
 
-.resourcecol .form-check label:hover  {
+.resourcecol .form-check label:hover, .servicecol .form-check label:hover   {
     background-color: #eeeeee;
 }
 
@@ -43,7 +44,7 @@ a:hover {
     margin-bottom: 2px;
 }
 
-.resourcetype
+.resourcetype, .servicegroup
 {
     background-color: #cccccc;
     padding-left: 2rem;
@@ -52,7 +53,12 @@ a:hover {
     margin-bottom: 2px;
 }
 
-.resourcetype h6 {
+.resourcetype input[type="checkbox"]
+{
+    /* margin-left: -1.5rem; */
+}
+
+.resourcetype h6, .servicegroup h6  {
     display: inline-block;
 }
 
@@ -61,4 +67,6 @@ a:hover {
     border-left: 1px solid #cccccc;
     border-bottom: 1px solid #cccccc;
     margin-top: -2px;
+    padding-left: 1.75rem;
 }
+

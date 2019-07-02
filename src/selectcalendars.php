@@ -16,13 +16,29 @@ try
     $api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
             $userName, $password);
     $calMasterData= $api->getCalendarMasterData();
+//    var_dump($calMasterData->getUnparsedDataBlocks());
     $resourceMasterData= $api->getResourceMasterData();
+//    var_dump($resourceMasterData->getUnparsedDataBlocks());
+    $serviceMasterData= $api->getServiceMasterData();
+//    var_dump($serviceMasterData->getUnparsedDataBlocks());
 
+//    $personMasterData= $api->getPersonMasterData();
+//    var_dump($personMasterData->getUnparsedDataBlocks());
+//    $groupTypes= $personMasterData->getGroupTypes();
+//    var_dump($groupTypes);
+//    
+//    $groups= $personMasterData->getGroups();
+//    var_dump($groups);
+
+    $groupMeetings= $api->getGroupMeetings(138);
+    var_dump($groupMeetings);
+    
     $visibleCalendars= $calMasterData->getCalendars();
     $visibleResourceTypes= $resourceMasterData->getResourceTypes();
     $visibleResources= $resourceMasterData->getResources();
-    
-
+    $visibleServiceGroups= $serviceMasterData->getServiceGroups();
+    $visibleServices= $serviceMasterData->getServiceEntries();
+ 
     session_start();
     $_SESSION['userName'] = $userName;
     $_SESSION['password'] = $password;
@@ -73,6 +89,34 @@ catch (Exception $e)
                     el.checked= isChecked;
                 });
             }
+            function toggleSrvGrpCat(idToToggle)
+            {
+                    //var divTitle= document.getElementById("ID_"+idToToggle+"_TITLE");
+                    var divPlus= document.getElementById("SRVGRP_"+idToToggle+"_PLUS");
+                    var divContent= document.getElementById("SRVGRP_WRAPPER_"+idToToggle);
+                    if (divContent.style.display === "none" || divContent.style.display === "" )
+                    {
+                            divPlus.classList.add("fa-minus-square");
+                            divPlus.classList.remove("fa-plus-square");
+                            divContent.style.display= "block";
+                    }
+                    else
+                    {
+                            divPlus.classList.remove("fa-minus-square");
+                            divPlus.classList.add("fa-plus-square");
+                            divContent.style.display = "none";
+                    }
+            }
+            function toggleSrvGrp(srvGrpIdToToggle)
+            {
+                var headerCB= document.getElementById("SRVGRP_"+srvGrpIdToToggle);
+                var isChecked= headerCB.checked;
+                var restCBS= document.getElementsByClassName("SRV_"+srvGrpIdToToggle);
+                Array.prototype.forEach.call(restCBS, function(el) {
+                    // Do stuff here
+                    el.checked= isChecked;
+                });
+            }
             </script>
     </head>
     <body>
@@ -89,8 +133,8 @@ catch (Exception $e)
             <?php } else { ?>
             <form action="generatecalendar.php" target="_blank" method="post">
                 <div class="row">
-                    <div class="col-6 calendarcol">
-                        <h5>Kalender</h5>
+                    <div class="col-4 calendarcol">
+                        <h5><?= $calMasterData->getCalendarModuleName() ?></h5>
             <?php $calIDS= $visibleCalendars->getCalendarIDS(true);
                     foreach( $calIDS as $calID) {
                         $cal=$visibleCalendars->getCalendar($calID);
@@ -100,7 +144,7 @@ catch (Exception $e)
                     </div>
             <?php } ?>
                     </div>
-                    <div class="col-6 resourcecol">
+                    <div class="col-4 resourcecol">
                         <h5>Resourcen</h5>
             <?php $resourceTypesIDS= $visibleResourceTypes->getResourceTypesIDS(true);
                     foreach( $resourceTypesIDS as $resTypeID) {
@@ -110,12 +154,23 @@ catch (Exception $e)
                         ?>
                     <div class="resource form-check"  >
                         <div class="resourcetype">
+                        <?php if (sizeof($resourceIDS) >1) { ?>
                             <input type="checkbox" class="form-check-input" id="REST_<?= $resType->getID()?>" onclick="toggleResType('<?= $resType->getID()?>')"/>
                             <a href="#"  onclick="toggleResTypeCat('<?= $resType->getID() ?>'); return false;">
                                 <h6 class="col-10"><?= $resType->getDescription() ?></h6>
                                     <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= $resType->getID()?>_PLUS"></i>
                             </a>
+                        <?php } else {
+                            foreach( $resourceIDS as $resourceID) {
+                                $resource=$visibleResources->getResource($resourceID);
+                                ?>
+                            &nbsp;<label class="form-check-label" for="RES_<?= $resource->getID() ?>">
+                                <input type="checkbox" class="form-check-input RES_<?= $resType->getID()?>" id="RES_<?= $resource->getID() ?>" name="RES_<?= $resource->getID() ?>" value="RES_<?= $resource->getID() ?>">
+                                        <?= $resource->getDescription() ?></label><br/>
+                            <?php } ?>
+                        <?php } ?>
                         </div>
+                        <?php if (sizeof($resourceIDS) >1) { ?>
                         <div id="REST_WRAPPER_<?= $resType->getID()?>" style="display: none;" class="rest-wrapper">
                         <?php 
                             foreach( $resourceIDS as $resourceID) {
@@ -126,11 +181,53 @@ catch (Exception $e)
                                         <?= $resource->getDescription() ?></label><br/>
                             <?php } ?>
                         </div>
+                        <?php } ?>
                     </div>
                     <?php } } ?>
                     </div>
+                   <div class="col-4 servicecol">
+                        <h5>Dienste</h5>
+             <?php $serviceGroupIDS= $visibleServiceGroups->getServiceGroupIDS(true);
+                    foreach( $serviceGroupIDS as $serviceGrpID) {
+                        $srvGRP=$visibleServiceGroups->getServiceGroup($serviceGrpID);
+                        $servicesIDS= $visibleServices->getServiceIDSOfGroup($serviceGrpID, true);
+                        if (sizeof($servicesIDS) >0) { // Hide empty types
+                        ?>
+                    <div class="service form-check"  >
+                        <div class="servicegroup">
+                        <?php if (sizeof($servicesIDS) >1) { ?>
+                            <input type="checkbox" class="form-check-input" id="SRVGRP_<?= $srvGRP->getID()?>" onclick="toggleSrvGrp('<?= $srvGRP->getID()?>')"/>
+                            <a href="#"  onclick="toggleSrvGrpCat('<?= $srvGRP->getID() ?>'); return false;">
+                                <h6 class="col-10"><?= $srvGRP->getDescription() ?></h6>
+                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="SRVGRP_<?= $srvGRP->getID()?>_PLUS"></i>
+                            </a>
+                        <?php } else { 
+                            foreach( $servicesIDS as $serviceID) {
+                                $service= $visibleServices->getService($serviceID);
+                                ?>
+                            &nbsp;<label class="form-check-label" for="SRV_<?= $service->getID() ?>">
+                                <input type="checkbox" class="form-check-input SRV_<?= $srvGRP->getID()?>" id="SRV_<?= $service->getID() ?>" name="SRV_<?= $service->getID() ?>" value="SRV_<?= $service->getID() ?>">
+                                        <?= $service->getTitle() ?></label><br/>
+                            <?php } ?>
+                        <?php } ?>
+                        </div>
+                        <?php if (sizeof($servicesIDS) >1) { ?>
+                        <div id="SRVGRP_WRAPPER_<?= $srvGRP->getID()?>" style="display: none;" class="rest-wrapper">
+                            <?php 
+                            foreach( $servicesIDS as $serviceID) {
+                                $service= $visibleServices->getService($serviceID);
+                                ?>
+                            &nbsp;<label class="form-check-label" for="SRV_<?= $service->getID() ?>">
+                                <input type="checkbox" class="form-check-input SRV_<?= $srvGRP->getID()?>" id="SRV_<?= $service->getID() ?>" name="SRV_<?= $service->getID() ?>" value="SRV_<?= $service->getID() ?>">
+                                        <?= $service->getTitle() ?></label><br/>
+                            <?php } ?>
+                        </div>
+                        <?php } ?>
+                    </div>
+                    <?php } } ?>
+                   </div>                    
                 </div>
-                    <h5>Monat / Jahr auswählen</h5>
+                    <h5>Zeitraum auswählen</h5>
                     <div class="row">
                         <div class="col">
                             <div class="form-check form-check-inline">
