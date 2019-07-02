@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "708b99353f3f934c8d0692d9f39004de",
+    "content-hash": "3ec96d463c602e1e27dc9ee7e45e4a91",
     "packages": [
         {
             "name": "a-schild/pdfcalendarbuilder",
@@ -698,16 +698,16 @@
         },
         {
             "name": "vineyardkoeln/churchtools-api",
-            "version": "v0.4.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vineyardkoeln/churchtools-api.git",
-                "reference": "763afc594a5f8ebf2b7fec0ce7ee6b0b4d035d88"
+                "reference": "b8deed73bcad3e48ad8b6bcc239af59f67ec29cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vineyardkoeln/churchtools-api/zipball/763afc594a5f8ebf2b7fec0ce7ee6b0b4d035d88",
-                "reference": "763afc594a5f8ebf2b7fec0ce7ee6b0b4d035d88",
+                "url": "https://api.github.com/repos/vineyardkoeln/churchtools-api/zipball/b8deed73bcad3e48ad8b6bcc239af59f67ec29cf",
+                "reference": "b8deed73bcad3e48ad8b6bcc239af59f67ec29cf",
                 "shasum": ""
             },
             "require": {
@@ -737,13 +737,15 @@
             ],
             "description": "Object-oriented API access to ChurchTools",
             "homepage": "https://github.com/vineyardkoeln/churchtools-api",
-            "time": "2019-04-23T06:57:58+00:00"
+            "time": "2019-07-02T16:37:01+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "vineyardkoeln/churchtools-api": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
