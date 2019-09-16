@@ -30,7 +30,7 @@ try
 //    $groups= $personMasterData->getGroups();
 //    var_dump($groups);
 
-    $groupMeetings= $api->getGroupMeetings(138);
+//    $groupMeetings= $api->getGroupMeetings(138);
 //    var_dump($groupMeetings);
     
     $visibleCalendars= $calMasterData->getCalendars();
