@@ -1,7 +1,7 @@
 # churchtools-pdfcalendar
 Generate PDF month calendars from churchtools
-With version 1.1 you can also generate full-year calendars, consisting of 12 pages
-With version 1.1.2 you can also generate styled xlsx calendars
+- With version 1.1 you can also generate full-year calendars, consisting of 12 pages
+- With version 1.1.2 you can also generate styled xlsx calendars
 
 Currently the UI is in german only
 
@@ -14,7 +14,7 @@ Currently the UI is in german only
   https://ctdemo.oncloud7.ch/
   You can then specify the name/url of your CT installation, together with valid login credentials
 
-## Installation as compplete package
+## Installation as complete package
 - Download and expand the archive to your web server
   https://github.com/a-schild/churchtools-pdfcalendar/releases/download/1.1.2/churchtools-pdfcalendar-1.1.2.zip
 - Copy `config.sample` to `config.php`
