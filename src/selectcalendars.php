@@ -282,9 +282,9 @@ catch (Exception $e)
                         <label class="form-check-label" for="PrintEND">Endzeit anzeigen</label>
                 </div>
              <div class="form-group row mt-2 ml-1">
-                 <input type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1">
-                 <input type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1">
-                 <a href="index.php" class="btn btn-secondary mr-1">Abmelden</a>
+                 <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1">PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
+                 <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1">XLSX erstellen <i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
+                 <a href="index.php" class="btn btn-secondary mr-1">Abmelden <i class="fa fa-sign-out" aria-hidden="true"></i></a>
              </div>
             </form>
             <?php } ?>
