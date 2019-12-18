@@ -101,6 +101,7 @@ try
             {
                 // OK
                 $requestedMonth->sub(new DateInterval('P1M'));
+                $requestedYear= intval($requestedMonth->format("Y"));
             }
             elseif ($_POST['sel_month'] == 'now')
             {
@@ -110,6 +111,7 @@ try
             {
                 // OK
                 $requestedMonth->add(new DateInterval('P1M'));
+                $requestedYear= intval($requestedMonth->format("Y"));
             }
             elseif ($_POST['sel_month'] == 'current_year')
             {
