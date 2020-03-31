@@ -14,7 +14,7 @@
     "require": {
         "php": "^7.3",
         "a-schild/pdfcalendarbuilder": "^1.0.10",
-        "vineyardkoeln/churchtools-api": "dev-master",
+        "vineyardkoeln/churchtools-api": "^0.5.2",
         "phpoffice/phpspreadsheet": "^1.8.0"
     }
 }
