@@ -2,7 +2,8 @@
 Generate PDF month calendars from churchtools
 - With version 1.1 you can also generate full-year calendars, consisting of 12 pages
 - With version 1.1.2 you can also generate styled xlsx calendars
-- With version 1.1.3 we fixed the api change in ct for CSRF
+- With version 1.1.3 fix for prev/next year on year wrap
+- With version 1.1.4 we fixed the api change in ct for CSRF
 
 Currently the UI is in german only
 
