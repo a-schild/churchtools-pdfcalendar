@@ -160,7 +160,13 @@ catch (Exception $e)
                 <div class="row">
                     <div class="col-4 calendarcol">
                         <h5><?= $configData['churchcal_name'] ?></h5>
-            <?php   foreach( $visibleCalendars as $cal) { ?>
+            <?php   $gcalHeaderWritten= false;
+                    foreach( $visibleCalendars as $cal) { 
+                        if (!$gcalHeaderWritten && !$cal->getIsPublic() ) {
+                            $gcalHeaderWritten= true;
+                            ?><h6>Gruppenkalender</h6><?php
+                        }
+                        ?>
                     <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color:<?= getContrastColor($cal->getColor())?>;">
                         <label class="form-check-label" for="CAL_<?= $cal->getId() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getId() ?>" name="CAL_<?= $cal->getId() ?>" value="CAL_<?= $cal->getId() ?>"><?= $cal->getName() ?></label>
                     </div>
