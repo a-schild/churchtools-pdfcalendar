@@ -2,7 +2,11 @@
 
 require __DIR__.'/vendor/autoload.php';
 
-use \ChurchTools\Api\Tools\CalendarTools;
+use \CTApi\CTConfig;
+use \CTApi\Models\Common\Config\ConfigRequest;
+use \CTApi\Models\Calendars\Calendar\CalendarRequest;
+use \CTApi\Models\Calendars\Resource\ResourceRequest;
+use \CTApi\Models\Events\Service\ServiceRequest;
 
 $serverURL= filter_input(INPUT_POST, "serverURL");
 $userName= filter_input(INPUT_POST, "email");
@@ -13,13 +17,32 @@ $errorMessage= null;
 $visibleCalendars;
 try
 {
-    $api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
-            $userName, $password);
-    $calMasterData= $api->getCalendarMasterData();
+    CTConfig::setApiUrl('https://'.$serverURL);
+    //authenticates the application and load the api-key into the config
+    CTConfig::authWithCredentials(
+        $userName,
+        $password
+    );
+    $configData= ConfigRequest::getConfig();
+    $visibleCalendars = CalendarRequest::all();
+    
 //    var_dump($calMasterData->getUnparsedDataBlocks());
-    $resourceMasterData= $api->getResourceMasterData();
+    $allResources= ResourceRequest::all();
+    $allResourceTypes= [];
+    foreach ($allResources as $resource) {
+        $rtFound= false;
+        foreach ($allResourceTypes as $rType) {
+            if ($rType->getId() == $resource->getResourceTypeId()) {
+                $rtFound= true;
+            }
+        }
+        if (!$rtFound) {
+            array_push($allResourceTypes, $resource->getResourceType());
+        }
+    }
+//    var_dump($resourceMasterData);
 //    var_dump($resourceMasterData->getUnparsedDataBlocks());
-    $serviceMasterData= $api->getServiceMasterData();
+    $serviceMasterData= ServiceRequest::all();
 //    var_dump($serviceMasterData->getUnparsedDataBlocks());
 
 //    $personMasterData= $api->getPersonMasterData();
@@ -33,11 +56,13 @@ try
 //    $groupMeetings= $api->getGroupMeetings(138);
 //    var_dump($groupMeetings);
     
-    $visibleCalendars= $calMasterData->getCalendars();
-    $visibleResourceTypes= $resourceMasterData->getResourceTypes();
-    $visibleResources= $resourceMasterData->getResources();
-    $visibleServiceGroups= $serviceMasterData->getServiceGroups();
-    $visibleServices= $serviceMasterData->getServiceEntries();
+//    $visibleCalendars= $calMasterData->getCalendars();
+
+
+//    $visibleResourceTypes= $resourceMasterData->getResourceTypes();
+//    $visibleResources= $resourceMasterData->getResources();
+//    $visibleServiceGroups= $serviceMasterData->getServiceGroups();
+//    $visibleServices= $serviceMasterData->getServiceEntries();
  
     session_start();
     $_SESSION['userName'] = $userName;
@@ -121,7 +146,7 @@ catch (Exception $e)
     </head>
     <body>
         <div class="container">
-            <h1>CT Calendarbuilder</h1>
+            <h1>Churchtools Calendarbuilder</h1>
             <?php if ($hasError) { ?>
             <h2>Login fehlgeschlagen</h2>
             <div class="alert alert-danger" role="alert">
@@ -134,98 +159,37 @@ catch (Exception $e)
             <form action="generatecalendar.php" target="_blank" method="post">
                 <div class="row">
                     <div class="col-4 calendarcol">
-                        <h5><?= $calMasterData->getCalendarModuleName() ?></h5>
-            <?php $calIDS= $visibleCalendars->getCalendarIDS(true);
-                    foreach( $calIDS as $calID) {
-                        $cal=$visibleCalendars->getCalendar($calID);
-                        ?>
-                 <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color: <?= $cal->getTextColor()?>">
-                        <label class="form-check-label" for="CAL_<?= $cal->getID() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getID() ?>" name="CAL_<?= $cal->getID() ?>" value="CAL_<?= $cal->getID() ?>"><?= $cal->getName() ?></label>
+                        <h5><?= $configData['churchcal_name'] ?></h5>
+            <?php   foreach( $visibleCalendars as $cal) { ?>
+                    <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color:<?= getContrastColor($cal->getColor())?>;">
+                        <label class="form-check-label" for="CAL_<?= $cal->getId() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getId() ?>" name="CAL_<?= $cal->getId() ?>" value="CAL_<?= $cal->getId() ?>"><?= $cal->getName() ?></label>
                     </div>
             <?php } ?>
                     </div>
                     <div class="col-4 resourcecol">
                         <h5>Resourcen</h5>
-            <?php $resourceTypesIDS= $visibleResourceTypes->getResourceTypesIDS(true);
-                    foreach( $resourceTypesIDS as $resTypeID) {
-                        $resType=$visibleResourceTypes->getResourceType($resTypeID);
-                        $resourceIDS= $visibleResources->getResourceIDSOfType($resTypeID, true);
-                        if (sizeof($resourceIDS) >0) { // Hide empty types
+            <?php foreach( $allResourceTypes as $resType) {
                         ?>
                     <div class="resource form-check"  >
                         <div class="resourcetype">
-                        <?php if (sizeof($resourceIDS) >1) { ?>
-                            <input type="checkbox" class="form-check-input" id="REST_<?= $resType->getID()?>" onclick="toggleResType('<?= $resType->getID()?>')"/>
-                            <a href="#"  onclick="toggleResTypeCat('<?= $resType->getID() ?>'); return false;">
-                                <h6 class="col-10"><?= $resType->getDescription() ?></h6>
-                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= $resType->getID()?>_PLUS"></i>
+                            <input type="checkbox" class="form-check-input" id="REST_<?= $resType->getId()?>" onclick="toggleResType('<?= $resType->getId()?>')"/>
+                            <a href="#"  onclick="toggleResTypeCat('<?= $resType->getId() ?>'); return false;">
+                                <h6 class="col-10"><?= $resType->getName() ?></h6>
+                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= $resType->getId()?>_PLUS"></i>
                             </a>
-                        <?php } else {
-                            foreach( $resourceIDS as $resourceID) {
-                                $resource=$visibleResources->getResource($resourceID);
+                      <?php foreach ($allResources as $resource) {
+                                // Check if in resource type
+                                if ($resource->getResourceTypeId() == $resType->getId()) {
                                 ?>
-                            &nbsp;<label class="form-check-label" for="RES_<?= $resource->getID() ?>">
-                                <input type="checkbox" class="form-check-input RES_<?= $resType->getID()?>" id="RES_<?= $resource->getID() ?>" name="RES_<?= $resource->getID() ?>" value="RES_<?= $resource->getID() ?>">
-                                        <?= $resource->getDescription() ?></label><br/>
+                            &nbsp;<label class="form-check-label" for="RES_<?= $resource->getId() ?>">
+                                <input type="checkbox" class="form-check-input RES_<?= $resType->getId()?>" id="RES_<?= $resource->getId() ?>" name="RES_<?= $resource->getId() ?>" value="RES_<?= $resource->getId() ?>">
+                                        <?= $resource->getName() ?></label><br/>
                             <?php } ?>
-                        <?php } ?>
+                        <?php }  ?>
                         </div>
-                        <?php if (sizeof($resourceIDS) >1) { ?>
-                        <div id="REST_WRAPPER_<?= $resType->getID()?>" style="display: none;" class="rest-wrapper">
-                        <?php 
-                            foreach( $resourceIDS as $resourceID) {
-                                $resource=$visibleResources->getResource($resourceID);
-                                ?>
-                            &nbsp;<label class="form-check-label" for="RES_<?= $resource->getID() ?>">
-                                <input type="checkbox" class="form-check-input RES_<?= $resType->getID()?>" id="RES_<?= $resource->getID() ?>" name="RES_<?= $resource->getID() ?>" value="RES_<?= $resource->getID() ?>">
-                                        <?= $resource->getDescription() ?></label><br/>
-                            <?php } ?>
-                        </div>
-                        <?php } ?>
                     </div>
-                    <?php } } ?>
-                    </div>
-                   <div class="col-4 servicecol">
-                        <h5>Dienste</h5>
-             <?php $serviceGroupIDS= $visibleServiceGroups->getServiceGroupIDS(true);
-                    foreach( $serviceGroupIDS as $serviceGrpID) {
-                        $srvGRP=$visibleServiceGroups->getServiceGroup($serviceGrpID);
-                        $servicesIDS= $visibleServices->getServiceIDSOfGroup($serviceGrpID, true);
-                        if (sizeof($servicesIDS) >0) { // Hide empty types
-                        ?>
-                    <div class="service form-check"  >
-                        <div class="servicegroup">
-                        <?php if (sizeof($servicesIDS) >1) { ?>
-                            <input type="checkbox" class="form-check-input" id="SRVGRP_<?= $srvGRP->getID()?>" onclick="toggleSrvGrp('<?= $srvGRP->getID()?>')"/>
-                            <a href="#"  onclick="toggleSrvGrpCat('<?= $srvGRP->getID() ?>'); return false;">
-                                <h6 class="col-10"><?= $srvGRP->getDescription() ?></h6>
-                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="SRVGRP_<?= $srvGRP->getID()?>_PLUS"></i>
-                            </a>
-                        <?php } else { 
-                            foreach( $servicesIDS as $serviceID) {
-                                $service= $visibleServices->getService($serviceID);
-                                ?>
-                            &nbsp;<label class="form-check-label" for="SRV_<?= $service->getID() ?>">
-                                <input type="checkbox" class="form-check-input SRV_<?= $srvGRP->getID()?>" id="SRV_<?= $service->getID() ?>" name="SRV_<?= $service->getID() ?>" value="SRV_<?= $service->getID() ?>">
-                                        <?= $service->getTitle() ?></label><br/>
-                            <?php } ?>
-                        <?php } ?>
-                        </div>
-                        <?php if (sizeof($servicesIDS) >1) { ?>
-                        <div id="SRVGRP_WRAPPER_<?= $srvGRP->getID()?>" style="display: none;" class="rest-wrapper">
-                            <?php 
-                            foreach( $servicesIDS as $serviceID) {
-                                $service= $visibleServices->getService($serviceID);
-                                ?>
-                            &nbsp;<label class="form-check-label" for="SRV_<?= $service->getID() ?>">
-                                <input type="checkbox" class="form-check-input SRV_<?= $srvGRP->getID()?>" id="SRV_<?= $service->getID() ?>" name="SRV_<?= $service->getID() ?>" value="SRV_<?= $service->getID() ?>">
-                                        <?= $service->getTitle() ?></label><br/>
-                            <?php } ?>
-                        </div>
-                        <?php } ?>
-                    </div>
-                    <?php } } ?>
-                   </div>                    
+            <?php } ?>
+                </div>
                 </div>
                     <h5>Zeitraum auswählen</h5>
                     <div class="row">
@@ -277,9 +241,24 @@ catch (Exception $e)
                 <div class="form-check form-check-inline">
                     <label class="form-check-label"><input type="radio" name="orientation" value="P" checked class="form-check-input">Hochformat</label>
                 </div>
+                <h5>Filter</h5>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label"><input type="radio" name="show_private" value="private"  class="form-check-input">Nur private</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label"><input type="radio" name="show_private" value="public" checked class="form-check-input">Nur öffentliche</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label class="form-check-label"><input type="radio" name="show_private" value="all" class="form-check-input">Alle</label>
+                </div>
+                <h5>Optionen</h5>
                 <div class="form-check form-check-inline">
                         <input type="checkbox" class="form-check-input" id="PrintEND" name="PrintEND" value="PrintEND">
                         <label class="form-check-label" for="PrintEND">Endzeit anzeigen</label>
+                </div>
+                <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="useColors" name="useColors" value="useColors" checked>
+                        <label class="form-check-label" for="useColors">Farben verwenden</label>
                 </div>
              <div class="form-group row mt-2 ml-1">
                  <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1">PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
@@ -294,3 +273,14 @@ catch (Exception $e)
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </body>
 </html>
+<?php 
+
+function getContrastColor($hexcolor) 
+{               
+    $r = hexdec(substr($hexcolor, 1, 2));
+    $g = hexdec(substr($hexcolor, 3, 2));
+    $b = hexdec(substr($hexcolor, 5, 2));
+    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+    return ($yiq >= 128) ? 'black' : 'white';
+}
+

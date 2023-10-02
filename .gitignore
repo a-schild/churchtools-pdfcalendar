@@ -6,3 +6,4 @@ src/vendor/
 # composer.lock
 /src/config.php
 /nbproject/
+/src/nbproject/private/

@@ -12,9 +12,15 @@
             "role": "Developer"
         }],
     "require": {
-        "php": "^7.3",
+        "php": "^8.0",
         "a-schild/pdfcalendarbuilder": "^1.0.10",
-        "vineyardkoeln/churchtools-api": "^0.5.2",
+        "5pm-hdh/churchtools-api": "dev-master",
         "phpoffice/phpspreadsheet": "^1.8.0"
-    }
+    },
+	"repositories": [
+	{
+		"type": "vcs",
+		"url": "https://github.com/a-schild/churchtools-api"
+	}
+	]
 }

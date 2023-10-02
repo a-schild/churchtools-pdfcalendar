@@ -1,8 +1,12 @@
 <?php
 require __DIR__.'/vendor/autoload.php';
 
-use \ChurchTools\Api\Tools\CalendarTools;
-use \ChurchTools\Api\Tools\BookingTools;
+use \CTApi\CTConfig;
+use \CTApi\Models\Calendars\Calendar\CalendarRequest;
+use \CTApi\Models\Calendars\Resource\ResourceRequest;
+use \CTApi\Models\Events\Service\ServiceRequest;
+use \CTApi\Models\Calendars\Appointment\AppointmentRequest;
+use \CTApi\Utils\CTDateTimeService;
 use \PhpOffice\PhpSpreadsheet\Spreadsheet;
 use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -39,39 +43,42 @@ $serverURL= $_SESSION["serverURL"];
 try
 {
 
-    $api = \ChurchTools\Api\RestApi::createWithUsernamePassword($serverURL,
-            $userName, $password);
-
-    $calMasterData = $api->getCalendarMasterData();
-    $resourceMasterData= $api->getResourceMasterData();
-    
-    $calendars  = $calMasterData->getCalendars();
-    // $visibleResourceTypes= $resourceMasterData->getResourceTypes();
-    $visibleResources= $resourceMasterData->getResources();
-    
+    CTConfig::setApiUrl('https://'.$serverURL);
+    //authenticates the application and load the api-key into the config
+    CTConfig::authWithCredentials(
+        $userName,
+        $password
+    );
     
     //
     // All calendars
     // 
-    $allCalendarIDS= $calendars->getCalendarIDS(true); // Get all calendars sorted
+    $visibleCalendars = CalendarRequest::all();
     $outputCalendars= array();
-    foreach ($allCalendarIDS as $calID) {
-        if (isset($_POST['CAL_'.$calID]))
+    $outputCalendarsIDS= array();
+    foreach ($visibleCalendars as $calendar) {
+        if (isset($_POST['CAL_'.$calendar->getId()]))
         {
-            array_push($outputCalendars, $calID);
+            array_push($outputCalendars, $calendar);
+            array_push($outputCalendarsIDS, $calendar->getId());
         }
     }
 
-    $allResourceIDS= $visibleResources->getResourceIDS(true); // Get all calendars sorted
-    $outputResources= array();
-    foreach ($allResourceIDS as $resID) {
-        if (isset($_POST['RES_'.$resID]))
-        {
-            array_push($outputResources, $resID);
-        }
+    $showPrivate= false;
+    $showPublic= true;
+    $requiredValue= $_POST["show_private"];
+    if ($requiredValue == "all") {
+        $showPrivate= true;
+        $showPublic= true;
+    } else if ($requiredValue == "private") {
+        $showPrivate= true;
+        $showPublic= false;
+    } else {
+        $showPrivate= false;
+        $showPublic= true;
     }
     
-    if (sizeof($outputCalendars) != 0 || sizeof($outputResources) !=0)
+    if (sizeof($outputCalendars) != 0 )
     {
         $paperFormat = "A4";
         if (isset($_POST['sel_paper']))
@@ -86,6 +93,7 @@ try
         }
 
         $printEND= isset($_POST['PrintEND']);
+        $useColors= isset($_POST['useColors']);
         $printFullYear= false;
         $now = new DateTime();
         $currentDay     = $now->format("d");
@@ -175,32 +183,50 @@ try
             if (sizeof($outputCalendars) > 0)
             {
                 // Get calendar entries for month
-                $calEntriesUnfiltered = $api->getCalendarEvents($outputCalendars, $numberPreviousDays,
-                    $numberNextDays);
+                // Make sure to have a valid expression, and not something like "now - -1"
+                 if ($numberPreviousDays < 0) {
+                     $fromDate= Date('Y-m-d', strtotime('+'.($numberPreviousDays*-1).' days'));
+                 } else {
+                     $fromDate= Date('Y-m-d', strtotime('-'.$numberPreviousDays.' days'));
+                 }
+                 // Make sure to have a valid expression, and not something like "now - -1"
+                 if ($numberNextDays < 0) {
+                     $toDate= Date('Y-m-d', strtotime('-'.($numberNextDays*-1).' days'));
+                 } else {
+                     $toDate= Date('Y-m-d', strtotime('+'.$numberNextDays.' days'));
+                 }
+                
+                $calEntries= AppointmentRequest::forCalendars($outputCalendarsIDS)->where('from', $fromDate)
+                    ->where('to', $toDate)
+                    ->get();
+
+                $calEntries= filterPublicPrivate($calEntries, $showPublic, $showPrivate);
+//                $calEntriesUnfiltered = $api->getCalendarEvents($outputCalendars, $numberPreviousDays,
+//                    $numberNextDays);
 
                 // Filter out entries which are out of date (Due to repeat logic)
                 //
                 //
-                $calUnsortedEntries= CalendarTools::filterCalendarEntries($calEntriesUnfiltered , $startDate->getTimestamp(), $endDate->getTimestamp());
+//                $calUnsortedEntries= CalendarTools::filterCalendarEntries($calEntriesUnfiltered , $startDate->getTimestamp(), $endDate->getTimestamp());
 
                 // Sort array
-                $calEntries= CalendarTools::sortCalendarEntries($calUnsortedEntries);
+//                $calEntries= CalendarTools::sortCalendarEntries($calUnsortedEntries);
             }
-            if (sizeof($outputResources) > 0)
-            {
-                // Get calendar entries for month
-                // $resEntriesUnfiltered
-                $resUnfilteredEntries= $api->getResourceBookings();
-
-                // Filter out entries which are out of date (Due to repeat logic)
-                $resUnsortedEntries= BookingTools::filterBookingEntries($resUnfilteredEntries , $startDate->getTimestamp(), $endDate->getTimestamp());
-
-                // Sort array
-                $resEntries= BookingTools::sortBookingEntries($resUnsortedEntries);
-            }
+//            if (sizeof($outputResources) > 0)
+//            {
+//                // Get calendar entries for month
+//                // $resEntriesUnfiltered
+//                $resUnfilteredEntries= $api->getResourceBookings();
+//
+//                // Filter out entries which are out of date (Due to repeat logic)
+//                $resUnsortedEntries= BookingTools::filterBookingEntries($resUnfilteredEntries , $startDate->getTimestamp(), $endDate->getTimestamp());
+//
+//                // Sort array
+//                $resEntries= BookingTools::sortBookingEntries($resUnsortedEntries);
+//            }
 
             if (count($outputCalendars) == 1) {
-                $thisCal      = $calendars->getCalendar($outputCalendars[0]);
+                $thisCal      = $outputCalendars[0];
                 $caption      = $thisCal->getName();
                 $printLegende = false;
             } else {
@@ -321,10 +347,14 @@ try
             if ($printLegende && $buildPDF) {
                 if (sizeof($outputCalendars) > 0)
                 {
-                    foreach ($outputCalendars as $cid) {
-                        $thisCal = $calendars->getCalendar($cid);
-                        $cal->addCategory($cid, $thisCal->getName(), $thisCal->getTextColor(),
-                            $thisCal->getColor());
+                    foreach ($outputCalendars as $thisCal) {
+                        if ($useColors) {
+                            $cal->addCategory($thisCal->getId(), $thisCal->getName(), getContrastColor($thisCal->getColor()),
+                                $thisCal->getColor());
+                        } else {
+                            $cal->addCategory($thisCal->getId(), $thisCal->getName(), '#ffffff',
+                                '#000000');
+                        }
                     }
                     $cal->printCategories();
                 }
@@ -333,20 +363,25 @@ try
             if ($calEntries != null)
             {
                 foreach ($calEntries as $entry) {
-                    $calendar  = $calendars->getCalendar($entry->getCalendarID());
-                    $startDate = $entry->getStartDate();
-                    $endDate = $entry->getEndDate();
-                    $title     = $entry->getTitle();
-                    $remarks   = $entry->getRemarks();
-                    $moreInfos   = $entry->getMoreInfos();
+                    $calendar  = $entry->getCalendar();
+                    $startDate = new DateTime($entry->getStartDate());
+                    $endDate = new DateTime($entry->getEndDate());
+                    $title     = $entry->getCaption();
+                    $remarks   = $entry->getNote();
+                    $moreInfos   = $entry->getInformation();
                     $link   = $entry->getLink();
                     if ($buildPDF)
                     {
                         if ($remarks != null && strlen(trim($remarks)) > 0) {
                             $title = $title.' ('.$remarks.')';
                         }
-                        $cal->addEntry($startDate, $endDate, $title, $calendar->getTextColor(),
-                            $calendar->getColor());
+                        if ($useColors) {
+                            $cal->addEntry($startDate, $endDate, $title, getContrastColor($calendar->getColor()),
+                                $calendar->getColor());
+                        } else {
+                            $cal->addEntry($startDate, $endDate, $title, '#000000',
+                                '#ffffff');
+                        }
                     }
                     else
                     {
@@ -381,23 +416,27 @@ try
                         $sheet->setCellValue($myCol++.$rowPos, $remarks);
                         $sheet->setCellValue($myCol++.$rowPos, $moreInfos);
                         $sheet->setCellValue($myCol.$rowPos, $link);
-                        if ($printLegende)
+                        if ($printLegende )
                         {
-                            $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFont()->getColor()->
-                                    setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html($calendar->getTextColor(), false));                            
-                            $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFill()->
-                                    setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->
-                                    getStartColor()->
-                                    setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html($calendar->getColor(), false));
+                            if ($useColors) {
+                                $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFont()->getColor()->
+                                        setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html(getContrastColor($calendar->getColor()), false));                            
+                                $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFill()->
+                                        setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->
+                                        getStartColor()->
+                                        setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html($calendar->getColor(), false));
+                            }
                         }
                         else if ($printFullYear)
                         {
                             if ($startDate->format("m") % 2 == 0)
                             {
-                                $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFill()->
-                                        setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->
-                                        getStartColor()->
-                                        setRGB($excelEvenBGColor);
+                                if ($useColors) {
+                                    $sheet->getStyle("A".$rowPos.":".$myCol.$rowPos)->getFill()->
+                                            setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->
+                                            getStartColor()->
+                                            setRGB($excelEvenBGColor);
+                                }
                             }
                         }
                         $rowPos++;
@@ -537,4 +576,49 @@ catch (Exception $e)
         </div>
     </body>
 </html>
-<?php } ?>
+<?php } 
+
+
+function invertColor($hex) {
+    $hex = str_replace('#', '', $hex);
+    if (strlen($hex) !== 6) {
+        return '#000000';
+    }
+    $new = '';
+    for ($i = 0; $i < 3; $i++) {
+        $rgbDigits = 255 - hexdec(substr($hex, (2 * $i), 2));
+        $hexDigits = ($rgbDigits < 0) ? 0 : dechex($rgbDigits);
+        $new .= (strlen($hexDigits) < 2) ? '0' . $hexDigits : $hexDigits;
+    }
+    return '#' . $new;
+}
+
+function getContrastColor($hexcolor) 
+{               
+    $r = hexdec(substr($hexcolor, 1, 2));
+    $g = hexdec(substr($hexcolor, 3, 2));
+    $b = hexdec(substr($hexcolor, 5, 2));
+    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+    return ($yiq >= 128) ? 'black' : 'white';
+}
+
+
+/**
+ * Filter cal entries, depedning on public/private setting
+ * 
+ * @param type $calEntries array with clendar entries
+ * @param type $showPublic
+ * @param type $showPrivate
+ */
+function filterPublicPrivate($calEntries, $showPublic, $showPrivate) {
+   $retVal= [];
+   foreach($calEntries as $entry) {
+       if ($entry->getIsInternal() && $showPrivate) {
+           array_push($retVal, $entry);
+       }
+       if (!$entry->getIsInternal() && $showPublic) {
+           array_push($retVal, $entry);
+       }
+   }
+   return $retVal;
+}
