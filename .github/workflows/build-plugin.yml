@@ -1,0 +1,35 @@
+name: Releases
+
+on: 
+  push:
+    branches: [ master ]
+    tags:
+    - 'v*'
+
+jobs:
+  build:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Build and Release Asset
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build project
+        run: |
+          composer install --no-dev --optimize-autoloader
+          mkdir build
+      - name: Create artifact
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -X -r ${{ github.event.repository.name }}.zip . -x *.git* 
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.event.repository.name }}.zip
+          asset_name: churchtools-pdfcalendar.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+#          body: "This is my release text"
