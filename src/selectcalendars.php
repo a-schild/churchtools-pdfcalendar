@@ -183,6 +183,7 @@ catch (Exception $e)
                                 <h6 class="col-10"><?= $resType->getName() ?></h6>
                                     <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= $resType->getId()?>_PLUS"></i>
                             </a>
+                            <div id="REST_WRAPPER_<?= $resType->getId() ?>" style="display:none">
                       <?php foreach ($allResources as $resource) {
                                 // Check if in resource type
                                 if ($resource->getResourceTypeId() == $resType->getId()) {
@@ -192,6 +193,7 @@ catch (Exception $e)
                                         <?= $resource->getName() ?></label><br/>
                             <?php } ?>
                         <?php }  ?>
+                            </div>
                         </div>
                     </div>
             <?php } ?>
@@ -204,10 +206,10 @@ catch (Exception $e)
                                 <label class="form-check-label"><input type="radio" name="sel_month" value="prev"  class="form-check-input" >Vorangehender Monat</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <label class="form-check-label"><input type="radio" name="sel_month" value="now"  class="form-check-input" checked>Aktueller Monat</label>
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="now"  class="form-check-input" >Aktueller Monat</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <label class="form-check-label"><input type="radio" name="sel_month" value="next" class="form-check-input">Nächster Monat</label>
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="next" class="form-check-input" checked>Nächster Monat</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">(1 Seite)</label>

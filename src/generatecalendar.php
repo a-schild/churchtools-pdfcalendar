@@ -333,6 +333,10 @@ try
                     $sheet->getColumnDimension($myCol)->setAutoSize(true);
                     cellColor($sheet, $myCol.$rowPos, $excelHeaderBGColor);
                     $sheet->setCellValue($myCol++.$rowPos, 'Link');
+                    $sheet->getStyle( $myCol.$rowPos )->getFont()->setBold( true )->setSize($excelHeaderFontSize);
+                    $sheet->getColumnDimension($myCol)->setAutoSize(true);
+                    cellColor($sheet, $myCol.$rowPos, $excelHeaderBGColor);
+                    $sheet->setCellValue($myCol++.$rowPos, 'Bild');
                     $rowPos++;
                 }
             }
@@ -370,6 +374,7 @@ try
                     $remarks   = $entry->getNote();
                     $moreInfos   = $entry->getInformation();
                     $link   = $entry->getLink();
+                    $image  = ($entry->getImage() != null) ? $entry->getImage()->getFileUrl() : "";
                     if ($buildPDF)
                     {
                         if ($remarks != null && strlen(trim($remarks)) > 0) {
@@ -415,7 +420,8 @@ try
                         $sheet->setCellValue($myCol++.$rowPos, $title);
                         $sheet->setCellValue($myCol++.$rowPos, $remarks);
                         $sheet->setCellValue($myCol++.$rowPos, $moreInfos);
-                        $sheet->setCellValue($myCol.$rowPos, $link);
+                        $sheet->setCellValue($myCol++.$rowPos, $link);
+                        $sheet->setCellValue($myCol.$rowPos, $image);
                         if ($printLegende )
                         {
                             if ($useColors) {
