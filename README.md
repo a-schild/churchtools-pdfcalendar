@@ -14,7 +14,7 @@ Currently the UI is in german only
 
 ## Installation as complete package
 - Download and expand the archive to your web server
-  https://github.com/a-schild/churchtools-pdfcalendar/releases/download/1.1.4/churchtools-pdfcalendar-1.1.4.zip
+  https://github.com/a-schild/churchtools-pdfcalendar/releases
 - Copy `config.sample` to `config.php`
 - Modify the serverURL to match your churchtool server name
 
