@@ -32,6 +32,7 @@ Currently the UI is in german only
 
 
 ## Changelog
+- 1.2.1 Automated build via github actions
 - 1.2.0 Upgrade libraries
         Added more export fields in excel export (Image/Address etc.)
 		Added option to export without colors, public/private entries
