@@ -336,6 +336,10 @@ try
                     $sheet->getStyle( $myCol.$rowPos )->getFont()->setBold( true )->setSize($excelHeaderFontSize);
                     $sheet->getColumnDimension($myCol)->setAutoSize(true);
                     cellColor($sheet, $myCol.$rowPos, $excelHeaderBGColor);
+                    $sheet->setCellValue($myCol++.$rowPos, 'Adresse');
+                    $sheet->getStyle( $myCol.$rowPos )->getFont()->setBold( true )->setSize($excelHeaderFontSize);
+                    $sheet->getColumnDimension($myCol)->setAutoSize(true);
+                    cellColor($sheet, $myCol.$rowPos, $excelHeaderBGColor);
                     $sheet->setCellValue($myCol++.$rowPos, 'Bild');
                     $rowPos++;
                 }
@@ -374,6 +378,7 @@ try
                     $remarks   = $entry->getNote();
                     $moreInfos   = $entry->getInformation();
                     $link   = $entry->getLink();
+                    $address = $entry->getAddress();
                     $image  = ($entry->getImage() != null) ? $entry->getImage()->getFileUrl() : "";
                     if ($buildPDF)
                     {
@@ -420,9 +425,14 @@ try
                         $sheet->setCellValue($myCol++.$rowPos, $title);
                         $sheet->setCellValue($myCol++.$rowPos, $remarks);
                         $sheet->setCellValue($myCol++.$rowPos, $moreInfos);
+
                         if ($link != null) {
                             $sheet->setCellValue($myCol.$rowPos, $link);
                             $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($link)->setTooltip("Click to download image");
+                        }
+                        $myCol++;
+                        if ($address != null) {
+                            $sheet->setCellValue($myCol.$rowPos, makeAddressString($address));
                         }
                         $myCol++;
                         if ($image != null) {
@@ -634,4 +644,27 @@ function filterPublicPrivate($calEntries, $showPublic, $showPrivate) {
        }
    }
    return $retVal;
+}
+
+function makeAddressString($address) {
+    $retVal= "";
+    if ($address != null) {
+        $retVal.= $address->getMeetingAt();
+        if ($address->getStreet() != null) {
+            $retVal.= "\n".$address->getStreet();
+        }
+        if ($address->getAddition() != null) {
+            $retVal.= "\n".$address->getAddition();
+        }
+        if ($address->getZip() != null) {
+            $retVal.= "\n".$address->getZip();
+        }
+        if ($address->getCity() != null) {
+            $retVal.= " ".$address->getCity();
+        }
+        if ($address->getCountry() != null) {
+            $retVal.= "\n".$address->getCountry();
+        }
+    }
+    return $retVal;
 }
