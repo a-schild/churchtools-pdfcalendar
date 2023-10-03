@@ -1,15 +1,11 @@
 # churchtools-pdfcalendar
 Generate PDF month calendars from churchtools
-- With version 1.1 you can also generate full-year calendars, consisting of 12 pages
-- With version 1.1.2 you can also generate styled xlsx calendars
-- With version 1.1.3 fix for prev/next year on year wrap
-- With version 1.1.4 we fixed the api change in ct for CSRF
 
 Currently the UI is in german only
 
 ## Requirements
-- php 7.1 or better
-- Churchtools (Tested with 3.52.0)
+- php 8.0 or better
+- Churchtools (Tested with v3.101.1)
 
 ## Demoserver
 - A demo server can be accessed under this URL 
@@ -33,3 +29,13 @@ Currently the UI is in german only
 
 ## Usage
 - Go to the `index.php` page with your webbrowser and enter your ct credentials
+
+
+## Changelog
+- 1.2.0 Upgrade libraries
+        Added more export fields in excel export (Image/Address etc.)
+		Added option to export without colors, public/private entries
+- 1.1.4 we fixed the api change in ct for CSRF
+- 1.1.3 fix for prev/next year on year wrap
+- 1.1.2 you can also generate styled xlsx calendars
+- 1.1 you can also generate full-year calendars, consisting of 12 pages
