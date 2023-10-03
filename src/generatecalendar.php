@@ -420,8 +420,15 @@ try
                         $sheet->setCellValue($myCol++.$rowPos, $title);
                         $sheet->setCellValue($myCol++.$rowPos, $remarks);
                         $sheet->setCellValue($myCol++.$rowPos, $moreInfos);
-                        $sheet->setCellValue($myCol++.$rowPos, $link);
-                        $sheet->setCellValue($myCol.$rowPos, $image);
+                        if ($link != null) {
+                            $sheet->setCellValue($myCol.$rowPos, $link);
+                            $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($link)->setTooltip("Click to download image");
+                        }
+                        $myCol++;
+                        if ($image != null) {
+                            $sheet->setCellValue($myCol.$rowPos, $image);
+                            $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($image)->setTooltip("Click to download image");
+                        }
                         if ($printLegende )
                         {
                             if ($useColors) {
