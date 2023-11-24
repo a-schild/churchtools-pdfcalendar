@@ -28,12 +28,12 @@ $serverURL= $configs["serverURL"];
             <?php if (!isset($serverURL)) { ?>
              <div class="form-group row">
                  <label for="serverURL" class="col-sm-2 col-form-label">Server URL</label>
-                <input type="text" name="serverURL" required="required">
+                <input type="text" name="serverURL" required="required" placeholder="your.church.tools">
              </div>
             <?php } ?>
              <div class="form-group row">
                  <label for="email" class="col-sm-2 col-form-label">E-Mail</label>
-                <input type="text" name="email" required="required">
+                <input type="text" name="email" required="required" placeholder="your churchtool login">
              </div>
              <div class="form-group row">
                  <label for="password" class="col-sm-2 col-form-label">Passwort</label>
