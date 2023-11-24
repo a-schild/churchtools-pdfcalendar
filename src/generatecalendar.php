@@ -370,10 +370,13 @@ try
 
             if ($calEntries != null)
             {
+                $tz= new DateTimeZone('Europe/Zurich');
                 foreach ($calEntries as $entry) {
                     $calendar  = $entry->getCalendar();
                     $startDate = new DateTime($entry->getStartDate());
+                    $startDate->setTimezone($tz);
                     $endDate = new DateTime($entry->getEndDate());
+                    $endDate->setTimezone($tz);
                     $title     = $entry->getCaption();
                     $remarks   = $entry->getNote();
                     $moreInfos   = $entry->getInformation();
