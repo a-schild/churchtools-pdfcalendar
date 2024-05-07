@@ -155,18 +155,26 @@ try
         {
             $requestedMonth->setDate($requestedYear, $loopMonth, 1);
             $rmLastDayOfMonth = $requestedMonth->format("t");
-            $rmMonth   = $requestedMonth->format("n");
+            $rmMonth   = $requestedMonth->format("m");
             $rmYear    = $requestedMonth->format("Y");
-
+//echo "Month: ".$rmMonth;
+//echo "Year:  " .$rmYear;
+//echo "EndMonth:  " .$rmLastDayOfMonth;
+    
             // Calculate start/end dates of requested month
             //$tsStart            = mktime(0, 0, 0, $rmMonth, 1, $rmYear);
             //$startOfMonth  = getDate($tsStart);
             //$days_in_month = date('t', $tsStart);
             //$tsEnd            = mktime(23, 59, 59, $rmMonth, $rmLastDayOfMonth, $rmYear);
 
-            $startDate= DateTime::createFromFormat('Y-m-d', $rmYear . '-' . $rmMonth . '-1');
+            $sString= $rmYear . '-' . $rmMonth . '-01';
+//            echo "Start string: ".$sString;
+            $eString= $rmYear . '-' . $rmMonth . '-' . $rmLastDayOfMonth;
+//            echo "End string: ".$eString;
+            
+            $startDate= DateTime::createFromFormat('Y-m-d', $sString);
             $startDate->setTime(0, 0);
-            $endDate= DateTime::createFromFormat('Y-m-d', $rmYear . '-' . $rmMonth . '-' . $rmLastDayOfMonth);
+            $endDate= DateTime::createFromFormat('Y-m-d', $eString);
             $endDate->setTime(23, 59, 59);
 
             $dDiffToStart = $startDate->diff($now);
@@ -178,24 +186,36 @@ try
             $numberPreviousDays = (intval($dDiffToStart->format('%a'))+1)*-1;
             $numberNextDays     = intval($dDiffToEnd->format('%a'))+1;
 
+//            echo "Prev: ".$numberPreviousDays . "<br>";
+//            echo "Next: ".$numberNextDays . "<br>";
+            
             $calEntries= null;
             $resEntries= null;
             if (sizeof($outputCalendars) > 0)
             {
                 // Get calendar entries for month
                 // Make sure to have a valid expression, and not something like "now - -1"
-                 if ($numberPreviousDays < 0) {
-                     $fromDate= Date('Y-m-d', strtotime('+'.($numberPreviousDays*-1).' days'));
-                 } else {
-                     $fromDate= Date('Y-m-d', strtotime('-'.$numberPreviousDays.' days'));
-                 }
-                 // Make sure to have a valid expression, and not something like "now - -1"
-                 if ($numberNextDays < 0) {
-                     $toDate= Date('Y-m-d', strtotime('-'.($numberNextDays*-1).' days'));
-                 } else {
-                     $toDate= Date('Y-m-d', strtotime('+'.$numberNextDays.' days'));
-                 }
-                
+//                 if ($numberPreviousDays < 0) {
+//                     $fromDate= Date('Y-m-d', strtotime('+'.($numberPreviousDays*-1).' days'));
+//                 } else {
+//                     $fromDate= Date('Y-m-d', strtotime('-'.$numberPreviousDays.' days'));
+//                 }
+//                 // Make sure to have a valid expression, and not something like "now - -1"
+//                 if ($numberNextDays < 0) {
+//                     $toDate= Date('Y-m-d', strtotime('-'.($numberNextDays*-1).' days'));
+//                 } else {
+//                     $toDate= Date('Y-m-d', strtotime('+'.$numberNextDays.' days'));
+//                 }
+
+//            var_dump($startDate);
+//            var_dump($endDate);
+//            
+                $fromDate= $startDate->format("Y-m-d");
+                $toDate= $endDate->format("Y-m-d");
+//            echo "From: ".$fromDate;
+//            echo "To  : ".$toDate."<br>";
+            
+                 
                 $calEntries= AppointmentRequest::forCalendars($outputCalendarsIDS)->where('from', $fromDate)
                     ->where('to', $toDate)
                     ->get();
