@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2bdcf12f2027eb5a241b84bbe102409c",
+    "content-hash": "387568017019c459e1a3ec7e14b02a3f",
     "packages": [
         {
             "name": "5pm-hdh/churchtools-api",
@@ -88,21 +88,21 @@
         },
         {
             "name": "a-schild/pdfcalendarbuilder",
-            "version": "1.0.12",
+            "version": "1.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/a-schild/pdfcalendarbuilder.git",
-                "reference": "a0192504e229d2177fbd3e36aad38dd831cf9721"
+                "reference": "a05f4d32acf45cb4948e0ccfb4ae527334d21bfe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/a-schild/pdfcalendarbuilder/zipball/a0192504e229d2177fbd3e36aad38dd831cf9721",
-                "reference": "a0192504e229d2177fbd3e36aad38dd831cf9721",
+                "url": "https://api.github.com/repos/a-schild/pdfcalendarbuilder/zipball/a05f4d32acf45cb4948e0ccfb4ae527334d21bfe",
+                "reference": "a05f4d32acf45cb4948e0ccfb4ae527334d21bfe",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.1",
-                "tecnickcom/tcpdf": "^6.10.0"
+                "php": "^8.2",
+                "tecnickcom/tcpdf": "^6.10.1"
             },
             "type": "library",
             "autoload": {
@@ -130,9 +130,9 @@
             ],
             "support": {
                 "issues": "https://github.com/a-schild/pdfcalendarbuilder/issues",
-                "source": "https://github.com/a-schild/pdfcalendarbuilder/tree/1.0.12"
+                "source": "https://github.com/a-schild/pdfcalendarbuilder/tree/1.0.13"
             },
-            "time": "2019-03-27T00:00:00+00:00"
+            "time": "2026-01-15T00:00:00+00:00"
         },
         {
             "name": "composer/pcre",
