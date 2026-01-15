@@ -11,7 +11,7 @@ a:hover {
     text-decoration: none;    
 }
 
-.calendarcol {
+.calendarcol, .tagcol {
     /* margin: 2px; */
 }
 
@@ -37,11 +37,19 @@ a:hover {
     background-color: #eeeeee;
 }
 
-.calendar {
+.calendar, .tag {
     padding-top: 3px;
     padding-bottom: 3px;
     padding-left: 1.8rem;
     margin-bottom: 2px;
+}
+
+.tag {
+    background-color: #f0f0f0;
+}
+
+.tag:hover {
+    background-color: #e0e0e0;
 }
 
 .resourcetype, .servicegroup

@@ -7,6 +7,7 @@ use \CTApi\Models\Common\Config\ConfigRequest;
 use \CTApi\Models\Calendars\Calendar\CalendarRequest;
 use \CTApi\Models\Calendars\Resource\ResourceRequest;
 use \CTApi\Models\Events\Service\ServiceRequest;
+use \CTApi\Models\Common\Tag\TagRequest;
 
 $serverURL= filter_input(INPUT_POST, "serverURL");
 $userName= filter_input(INPUT_POST, "email");
@@ -44,6 +45,7 @@ try
 //    var_dump($resourceMasterData->getUnparsedDataBlocks());
     $serviceMasterData= ServiceRequest::all();
 //    var_dump($serviceMasterData->getUnparsedDataBlocks());
+    $appointmentTags= TagRequest::allAppointmentTags();
 
 //    $personMasterData= $api->getPersonMasterData();
 //    var_dump($personMasterData->getUnparsedDataBlocks());
@@ -85,6 +87,7 @@ catch (Exception $e)
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />        
         <link rel="stylesheet" href="styles.css">
+		<link rel="icon" type="image/png" href="favicon.png">
         <script>
             function toggleResTypeCat(idToToggle)
             {
@@ -159,7 +162,7 @@ catch (Exception $e)
             <form action="generatecalendar.php" target="_blank" method="post">
                 <div class="row">
                     <div class="col-4 calendarcol">
-                        <h5><?= $configData['churchcal_name'] ?></h5>
+                        <h5>Kalender</h5>
             <?php   $gcalHeaderWritten= false;
                     foreach( $visibleCalendars as $cal) { 
                         if (!$gcalHeaderWritten && !$cal->getIsPublic() ) {
@@ -169,6 +172,15 @@ catch (Exception $e)
                         ?>
                     <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color:<?= getContrastColor($cal->getColor())?>;">
                         <label class="form-check-label" for="CAL_<?= $cal->getId() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getId() ?>" name="CAL_<?= $cal->getId() ?>" value="CAL_<?= $cal->getId() ?>"><?= $cal->getName() ?></label>
+                    </div>
+            <?php } ?>
+                    </div>
+                    <div class="col-4 tagcol">
+                        <h5>Tags</h5>
+                        <p class="small text-muted">Keine Auswahl = alle Termine</p>
+            <?php foreach( $appointmentTags as $tag) { ?>
+                    <div class="tag form-check">
+                        <label class="form-check-label" for="TAG_<?= $tag->getId() ?>"><input type="checkbox" class="form-check-input" id="TAG_<?= $tag->getId() ?>" name="TAG_<?= $tag->getId() ?>" value="TAG_<?= $tag->getId() ?>"><?= $tag->getName() ?></label>
                     </div>
             <?php } ?>
                     </div>

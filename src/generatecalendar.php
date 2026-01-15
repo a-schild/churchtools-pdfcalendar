@@ -6,6 +6,7 @@ use \CTApi\Models\Calendars\Calendar\CalendarRequest;
 use \CTApi\Models\Calendars\Resource\ResourceRequest;
 use \CTApi\Models\Events\Service\ServiceRequest;
 use \CTApi\Models\Calendars\Appointment\AppointmentRequest;
+use \CTApi\Models\Common\Tag\TagRequest;
 use \CTApi\Utils\CTDateTimeService;
 use \PhpOffice\PhpSpreadsheet\Spreadsheet;
 use \PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -61,6 +62,15 @@ try
         {
             array_push($outputCalendars, $calendar);
             array_push($outputCalendarsIDS, $calendar->getId());
+        }
+    }
+
+    // Collect selected tag IDs
+    $selectedTagIds = array();
+    $allTags = TagRequest::allAppointmentTags();
+    foreach ($allTags as $tag) {
+        if (isset($_POST['TAG_'.$tag->getId()])) {
+            array_push($selectedTagIds, $tag->getId());
         }
     }
 
@@ -221,6 +231,7 @@ try
                     ->get();
 
                 $calEntries= filterPublicPrivate($calEntries, $showPublic, $showPrivate);
+                $calEntries= filterByTags($calEntries, $selectedTagIds);
 //                $calEntriesUnfiltered = $api->getCalendarEvents($outputCalendars, $numberPreviousDays,
 //                    $numberNextDays);
 
@@ -549,11 +560,11 @@ try
             if ($buildPDF)
             {
                 $cal->buildCalendar();
-                $cal->writeTimestamp("@".strftime('%d.%m.%Y %H:%M'), $cal->getPageWidth()-105, 10, 100);
+                $cal->writeTimestamp("@".date('d.m.Y H:i'), round($cal->getPageWidth()-105), 10, 100);
             }
             else
             {
-                $sheet->setCellValue('A'.$rowPos, "@".strftime('%d.%m.%Y %H:%M'));
+                $sheet->setCellValue('A'.$rowPos, "@".date('d.m.Y H:i'));
             }
         }
         if ($buildPDF)
@@ -608,6 +619,7 @@ catch (Exception $e)
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Calendarbuilder login</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link rel="icon" type="image/png" href="favicon.png">
     </head>
     <body>
         <div class="container">
@@ -667,6 +679,32 @@ function filterPublicPrivate($calEntries, $showPublic, $showPrivate) {
        }
    }
    return $retVal;
+}
+
+/**
+ * Filter calendar entries by tags
+ * If no tags are selected, all entries are returned
+ * If tags are selected, only entries with at least one matching tag are returned
+ *
+ * @param array $calEntries array with calendar entries
+ * @param array $selectedTagIds array of selected tag IDs
+ * @return array filtered calendar entries
+ */
+function filterByTags($calEntries, $selectedTagIds) {
+    if (empty($selectedTagIds)) {
+        return $calEntries; // No filter when no tags selected
+    }
+    $retVal = [];
+    foreach ($calEntries as $entry) {
+        $entryTags = $entry->getTags() ?? [];
+        foreach ($entryTags as $tag) {
+            if (in_array($tag->getId(), $selectedTagIds)) {
+                array_push($retVal, $entry);
+                break; // Include if ANY selected tag matches
+            }
+        }
+    }
+    return $retVal;
 }
 
 function makeAddressString($address) {
