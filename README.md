@@ -4,7 +4,7 @@ Generate PDF month calendars from churchtools
 Currently the UI is in german only
 
 ## Requirements
-- php 8.1 or better
+- php 8.2 or better
 - Churchtools (Tested with v3.101.1)
 
 ## Demoserver
