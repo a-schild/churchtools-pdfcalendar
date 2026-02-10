@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba6b072b48f0c4e39cdae2003e5c8fb0",
+    "content-hash": "f2a223ea53d20cf472259a50450945e6",
     "packages": [
         {
             "name": "5pm-hdh/churchtools-api",
@@ -88,21 +88,25 @@
         },
         {
             "name": "a-schild/pdfcalendarbuilder",
-            "version": "1.0.14",
+            "version": "1.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/a-schild/pdfcalendarbuilder.git",
-                "reference": "97ca699be3c74b987b2b3c014c509fa9b38706ea"
+                "reference": "734e3e86df9e868aa77f665689d7c567b28ebdbf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/a-schild/pdfcalendarbuilder/zipball/97ca699be3c74b987b2b3c014c509fa9b38706ea",
-                "reference": "97ca699be3c74b987b2b3c014c509fa9b38706ea",
+                "url": "https://api.github.com/repos/a-schild/pdfcalendarbuilder/zipball/734e3e86df9e868aa77f665689d7c567b28ebdbf",
+                "reference": "734e3e86df9e868aa77f665689d7c567b28ebdbf",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.2",
                 "tecnickcom/tcpdf": "^6.10.1"
+            },
+            "require-dev": {
+                "codeception/codeception": "^5.0",
+                "codeception/module-asserts": "^3.0"
             },
             "type": "library",
             "autoload": {
@@ -130,7 +134,7 @@
             ],
             "support": {
                 "issues": "https://github.com/a-schild/pdfcalendarbuilder/issues",
-                "source": "https://github.com/a-schild/pdfcalendarbuilder/tree/v1.0.14"
+                "source": "https://github.com/a-schild/pdfcalendarbuilder/tree/v1.0.16"
             },
             "time": "2026-02-10T00:00:00+00:00"
         },
@@ -1490,6 +1494,6 @@
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.1.0"
 }

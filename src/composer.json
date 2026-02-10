@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": "^8.2",
-        "a-schild/pdfcalendarbuilder": "^1.0.14",
+        "a-schild/pdfcalendarbuilder": "^1.0.16",
         "5pm-hdh/churchtools-api": "dev-appointment-tag-support",
         "phpoffice/phpspreadsheet": "^5.4.0"
     }
