@@ -20,11 +20,37 @@ jobs:
         run: |
           cd src
           composer install --no-dev --optimize-autoloader
-          mkdir build
+      - name: Remove unnecessary vendor files
+        run: |
+          # Remove TCPDF fonts except freesans and helvetica families
+          cd src/vendor/tecnickcom/tcpdf/fonts
+          find . -maxdepth 1 -type d ! -name '.' -exec rm -rf {} +
+          find . -maxdepth 1 -type f \
+            ! -name 'freesans*' \
+            ! -name 'helvetica*' \
+            ! -name '.htaccess' \
+            -delete
+          cd -
+          # Remove TCPDF tools directory
+          rm -rf src/vendor/tecnickcom/tcpdf/tools
+          # Remove test directories
+          find src/vendor -type d \( -name 'tests' -o -name 'test' -o -name 'Tests' -o -name 'Test' \) -exec rm -rf {} + 2>/dev/null || true
+          # Remove doc directories
+          find src/vendor -type d \( -name 'docs' -o -name 'doc' \) -exec rm -rf {} + 2>/dev/null || true
+          # Remove example directories
+          find src/vendor -type d -name 'examples' -exec rm -rf {} + 2>/dev/null || true
+          # Remove CI/build config files from vendor
+          find src/vendor -name 'phpunit.xml*' -o -name 'phpstan.neon*' -o -name '.php-cs-fixer*' \
+            -o -name 'codeception.yml' -o -name 'infection.json*' -o -name '.editorconfig' \
+            -o -name 'buildPhar.php' | xargs rm -f 2>/dev/null || true
+          find src/vendor -type d -name '.github' -exec rm -rf {} + 2>/dev/null || true
+          # Remove markdown files from vendor (keep LICENSE files)
+          find src/vendor \( -name 'README.md' -o -name 'CHANGELOG*' -o -name 'CONTRIBUTING.md' \
+            -o -name 'UPGRADE*.md' \) -delete 2>/dev/null || true
       - name: Create artifact
         uses: montudor/action-zip@v1
         with:
-          args: zip -X -r ${{ github.event.repository.name }}.zip . -x *.git* 
+          args: zip -X -r ${{ github.event.repository.name }}.zip . -x *.git* .claude/* CLAUDE.md src/nbproject/* src/composer.lock
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:

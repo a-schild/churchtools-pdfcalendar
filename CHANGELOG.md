@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.8 2026-02-10]
+
+### Changed
+- Upgraded pdfcalendarbuilder to 1.0.16
+- Reduced release package size by ~80% (~32 MB savings)
+  - Optimized favicon files (5.6 MB → 31 KB)
+  - Strip unused TCPDF fonts from build (keep only freesans and helvetica)
+  - Remove test, doc, example directories and CI configs from vendor in build
+  - Exclude non-runtime files (CLAUDE.md, nbproject, composer.lock) from zip
+
 ## [1.2.7 2026-02-10]
 
 ### Fixed
