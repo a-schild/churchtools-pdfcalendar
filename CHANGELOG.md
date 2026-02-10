@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.2.6 2026-02-10]
+## [1.2.7 2026-02-10]
 
 ### Fixed
 - Legend overlapping last row of calendar days when more than 7 calendars are selected [#26](https://github.com/a-schild/churchtools-pdfcalendar/issues/26)
