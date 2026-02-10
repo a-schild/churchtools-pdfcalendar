@@ -89,6 +89,12 @@ catch (Exception $e)
         <link rel="stylesheet" href="styles.css">
 		<link rel="icon" type="image/png" href="favicon.png">
         <script>
+            function updateSubmitButtons()
+            {
+                var checked = document.querySelectorAll('input[id^="CAL_"]:checked').length > 0;
+                document.getElementById('btnPDF').disabled = !checked;
+                document.getElementById('btnXLSX').disabled = !checked;
+            }
             function toggleResTypeCat(idToToggle)
             {
                     //var divTitle= document.getElementById("ID_"+idToToggle+"_TITLE");
@@ -171,7 +177,7 @@ catch (Exception $e)
                         }
                         ?>
                     <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color:<?= getContrastColor($cal->getColor())?>;">
-                        <label class="form-check-label" for="CAL_<?= $cal->getId() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getId() ?>" name="CAL_<?= $cal->getId() ?>" value="CAL_<?= $cal->getId() ?>"><?= $cal->getName() ?></label>
+                        <label class="form-check-label" for="CAL_<?= $cal->getId() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getId() ?>" name="CAL_<?= $cal->getId() ?>" value="CAL_<?= $cal->getId() ?>" onchange="updateSubmitButtons()"><?= $cal->getName() ?></label>
                     </div>
             <?php } ?>
                     </div>
@@ -281,8 +287,8 @@ catch (Exception $e)
                         <label class="form-check-label" for="useColors">Farben verwenden</label>
                 </div>
              <div class="form-group row mt-2 ml-1">
-                 <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1">PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
-                 <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1">XLSX erstellen <i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
+                 <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1" id="btnPDF" disabled>PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
+                 <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1" id="btnXLSX" disabled>XLSX erstellen <i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
                  <a href="index.php" class="btn btn-secondary mr-1">Abmelden <i class="fa fa-sign-out" aria-hidden="true"></i></a>
              </div>
             </form>
