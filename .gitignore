@@ -7,3 +7,4 @@ src/vendor/
 /src/config.php
 /nbproject/
 /src/nbproject/private/
+/.claude/settings.local.json
