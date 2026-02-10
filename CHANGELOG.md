@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.5 2026-02-10]
+
+### Fixed
+- Legend overlapping last row of calendar days when more than 7 calendars are selected [#26](https://github.com/a-schild/churchtools-pdfcalendar/issues/26)
+- Upgraded pdfcalendarbuilder to 1.0.14 (color rendering fixes, PHP 8.0+ sort compliance)
+
 ## [1.2.4 2026-01-15]
 
 ### Fixed
