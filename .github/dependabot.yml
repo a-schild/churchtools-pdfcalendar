@@ -1,0 +1,31 @@
+version: 2
+
+updates:
+  # Composer manifest lives in src/, not the repository root.
+  - package-ecosystem: "composer"
+    directory: "/src"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    # guzzle and psr7 reach us only through 5pm-hdh/churchtools-api. Security
+    # updates are limited to direct dependencies, so they are also declared in
+    # src/composer.json to keep them updatable here.
+    groups:
+      composer:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # actions/checkout, montudor/action-zip and svenstaro/upload-release-action
+  # in build-plugin.yml are pinned to major tags and were never being updated.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns:
+          - "*"
