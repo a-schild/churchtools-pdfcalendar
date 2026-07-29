@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.10 2026-07-29]
+
+### Fixed
+- Repaired the recurring "Dependabot Updates" failures. guzzlehttp/guzzle and
+  guzzlehttp/psr7 reached the project only through `5pm-hdh/churchtools-api`, and
+  Dependabot security updates are limited to *direct* dependencies, so it could
+  never open pull requests for them — which is why those alerts accumulated
+  unattended. Both are now declared explicitly in `src/composer.json`; the parent
+  already allowed `guzzle ^7`, so no resolved version changed.
+- Closed the superseded phpspreadsheet 5.8.1 pull request that each retry was
+  failing against.
+
+### Added
+- `.github/dependabot.yml` enabling scheduled weekly updates (previously only
+  security updates ran) and covering the `github-actions` ecosystem, whose
+  pinned major tags in `build-plugin.yml` had never been updated.
+
+This release carries no runtime change: `vendor/` resolves identically to 1.2.9.
+
 ## [1.2.9 2026-07-29]
 
 ### Security
