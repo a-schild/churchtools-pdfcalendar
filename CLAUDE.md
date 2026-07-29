@@ -8,6 +8,10 @@ PHP web application that generates PDF and XLSX calendars from ChurchTools event
 
 **Requirements:** PHP 8.2+, Composer, web server
 
+**Local toolchain:** PHP and Composer are not on `PATH` on this machine. They ship with
+Laragon — prepend `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64` and `C:\laragon\bin\composer`
+to `$env:Path` before running `php` or `composer`.
+
 ## Build / Install
 
 ```bash
@@ -50,5 +54,11 @@ Copy `src/config.sample` to `src/config.php`. The only setting is `serverURL` �
 - Color contrast for text on colored backgrounds is computed via `getContrastColor()` in `generatecalendar.php`.
 - Tag filtering uses OR logic (entries matching ANY selected tag are included).
 - Full-year export produces 12 pages (one per month) in PDF, or a single sheet in XLSX.
-- PHP files use `declare(strict_types=1)` and inline HTML/PHP mixing.
+- `index.php` and `selectcalendars.php` use `declare(strict_types=1)`; `generatecalendar.php`
+  does *not*, and relies on weak-mode coercion (e.g. it passes `round()`'s float to
+  `CalendarBuilder::writeTimestamp()`, which is typed `int`). Adding strict types there
+  would break PDF generation without extra casts.
+- PHP files mix inline HTML/PHP.
+- `CalendarBuilder::output()` discards TCPDF's return value, so only the streaming
+  destinations (`I`, `D`) work — `S` returns nothing.
 - Frontend uses Bootstrap 4.3.1, Font Awesome 4.7.0, jQuery 3.3.1 (all CDN).

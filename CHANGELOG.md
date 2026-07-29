@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.9 2026-07-29]
+
+### Security
+- Resolved all 19 open Dependabot alerts by upgrading dependencies:
+  - phpoffice/phpspreadsheet 5.4.0 → 5.9.0 — fixes SSRF/RCE in `IOFactory::load`
+    (critical), XLS/OLE and Gnumeric memory exhaustion, XLSX/SpreadsheetML CPU
+    denial of service, `WEBSERVICE()` SSRF redirect bypass, and two XSS issues in
+    the HTML writer
+  - guzzlehttp/guzzle 7.10.0 → 7.15.2 — fixes URI fragment disclosure in redirect
+    `Referer` headers, host-only cookie scope loss, unbounded response cookies,
+    cookie disclosure/injection via IP-address domains, `Proxy-Authorization`
+    leakage to origin servers, dot-only cookie domain matching, and silent
+    HTTPS-proxy downgrade to cleartext
+  - guzzlehttp/psr7 2.8.0 → 2.13.0 — fixes host confusion via weak URI host
+    validation and authority reinterpretation, plus CRLF injection in start-line
+    serialization and the URI host component
+
+### Changed
+- Upgraded tcpdf 6.10.1 → 6.11.3, monolog, zipstream-php, composer/pcre and
+  symfony/deprecation-contracts to current releases
+- Verified PDF and XLSX output is unchanged: regenerating the same calendar
+  before and after the upgrade produces byte-identical content streams apart
+  from the embedded generation timestamp
+
 ## [1.2.8 2026-02-10]
 
 ### Changed
