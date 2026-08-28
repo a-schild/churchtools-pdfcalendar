@@ -36,7 +36,14 @@ There is no test suite, linter, or build step beyond Composer.
 
 ## Releases
 
-GitHub Actions (`.github/workflows/build-plugin.yml`) triggers on `v*` tags, runs `composer install --no-dev` in `src/`, zips the project, and uploads to GitHub Releases.
+GitHub Actions (`.github/workflows/build-plugin.yml`) triggers on `v*` tags, runs
+`composer install --no-dev` in `src/`, zips the project as
+`churchtools-pdfcalendar-<tag>.zip` and publishes a GitHub Release with it.
+
+Release notes are taken from the matching `CHANGELOG.md` section, so **add the entry
+before tagging**. The heading must be `## [<version> <date>]` (older entries without a
+date, `## [<version>]`, also match); if no section matches the tag, the workflow falls
+back to auto-generated notes.
 
 ## Architecture
 

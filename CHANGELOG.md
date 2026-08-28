@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.1 2026-08-28]
+
+### Changed
+- Release workflow: the release ZIP is now named `churchtools-pdfcalendar-<tag>.zip`
+  instead of `churchtools-pdfcalendar.zip`
+- Release workflow: release notes are taken from the matching `CHANGELOG.md` section
+  instead of being left empty (falls back to auto-generated notes when no section matches)
+
 ## [1.3.0 2026-08-28]
 
 ### Added

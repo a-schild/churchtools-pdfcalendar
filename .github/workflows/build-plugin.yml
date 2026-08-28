@@ -50,13 +50,31 @@ jobs:
       - name: Create artifact
         uses: montudor/action-zip@v1
         with:
-          args: zip -X -r ${{ github.event.repository.name }}.zip . -x *.git* .claude/* CLAUDE.md src/nbproject/* src/composer.lock
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.event.repository.name }}.zip
-          asset_name: churchtools-pdfcalendar.zip
-          tag: ${{ github.ref }}
-          overwrite: true
-#          body: "This is my release text"
+          args: zip -X -r ${{ github.event.repository.name }}-${{ github.ref_name }}.zip . -x *.git* .claude/* CLAUDE.md src/nbproject/* src/composer.lock
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          # Strip leading 'v' from the tag to match CHANGELOG headings
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Escape dots so 1.2.1 cannot match a heading like 1x2x1
+          VERSION_RE="${VERSION//./\.}"
+          # Headings are "## [1.3.0 2026-08-28]" or, older ones, "## [1.2.1]",
+          # so the version must be followed by a space or the closing bracket.
+          awk "/^## \[${VERSION_RE}[] ]/{found=1; next} /^## /{if(found) exit} found{print}" CHANGELOG.md > release_notes.md
+          if [ -s release_notes.md ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create GitHub Release (with CHANGELOG notes)
+        if: steps.notes.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "${{ github.event.repository.name }}-${GITHUB_REF_NAME}.zip" --title "$GITHUB_REF_NAME" --notes-file release_notes.md
+      - name: Create GitHub Release (auto-generated notes)
+        if: steps.notes.outputs.found == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "${{ github.event.repository.name }}-${GITHUB_REF_NAME}.zip" --title "$GITHUB_REF_NAME" --generate-notes
