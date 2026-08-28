@@ -30,3 +30,6 @@ Currently the UI is in german only
 ## Usage
 - Go to the `index.php` page with your webbrowser and enter your ct credentials
 
+## Changelog
+- See [CHANGELOG.md](CHANGELOG.md) for the notable changes of each release
+
