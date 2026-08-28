@@ -286,6 +286,10 @@ catch (Exception $e)
                         <input type="checkbox" class="form-check-input" id="useColors" name="useColors" value="useColors" checked>
                         <label class="form-check-label" for="useColors">Farben verwenden</label>
                 </div>
+                <div class="form-check form-check-inline">
+                        <input type="checkbox" class="form-check-input" id="showTags" name="showTags" value="showTags">
+                        <label class="form-check-label" for="showTags">Tags anzeigen (nur PDF)</label>
+                </div>
              <div class="form-group row mt-2 ml-1">
                  <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1" id="btnPDF" disabled>PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
                  <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1" id="btnXLSX" disabled>XLSX erstellen <i class="fa fa-file-excel-o" aria-hidden="true"></i></button>

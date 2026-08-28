@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0 2026-08-28]
+
+### Added
+- XLSX export has a new "Tags" column between "Adresse" and "Bild", listing all
+  tags of an appointment comma-separated
+- New option "Tags anzeigen (nur PDF)" appends the tags of an entry in brackets
+  to the calendar text, e.g. `Gottesdienst (mit Abendmahl) [Musik, Jugend]`.
+  Off by default, so existing PDFs are unchanged.
+
+### Changed
+- Appointments are now fetched with `includeTags()`, so tags arrive with the
+  single appointments request. Previously `getTags()` lazily issued one extra
+  API request per appointment, which also slowed down tag filtering.
+
 ## [1.2.10 2026-07-29]
 
 ### Fixed

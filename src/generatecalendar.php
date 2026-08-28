@@ -104,6 +104,7 @@ try
 
         $printEND= isset($_POST['PrintEND']);
         $useColors= isset($_POST['useColors']);
+        $showTags= isset($_POST['showTags']);
         $printFullYear= false;
         $now = new DateTime();
         $currentDay     = $now->format("d");
@@ -228,6 +229,7 @@ try
                  
                 $calEntries= AppointmentRequest::forCalendars($outputCalendarsIDS)->where('from', $fromDate)
                     ->where('to', $toDate)
+                    ->includeTags()
                     ->get();
 
                 $calEntries= filterPublicPrivate($calEntries, $showPublic, $showPrivate);
@@ -371,6 +373,10 @@ try
                     $sheet->getStyle( $myCol.$rowPos )->getFont()->setBold( true )->setSize($excelHeaderFontSize);
                     $sheet->getColumnDimension($myCol)->setAutoSize(true);
                     cellColor($sheet, $myCol.$rowPos, $excelHeaderBGColor);
+                    $sheet->setCellValue($myCol++.$rowPos, 'Tags');
+                    $sheet->getStyle( $myCol.$rowPos )->getFont()->setBold( true )->setSize($excelHeaderFontSize);
+                    $sheet->getColumnDimension($myCol)->setAutoSize(true);
+                    cellColor($sheet, $myCol.$rowPos, $excelHeaderBGColor);
                     $sheet->setCellValue($myCol++.$rowPos, 'Bild');
                     $rowPos++;
                 }
@@ -418,6 +424,12 @@ try
                     {
                         if ($remarks != null && strlen(trim($remarks)) > 0) {
                             $title = $title.' ('.$remarks.')';
+                        }
+                        if ($showTags) {
+                            $tagNames= formatTagNames($entry);
+                            if (strlen($tagNames) > 0) {
+                                $title = $title.' ['.$tagNames.']';
+                            }
                         }
                         if ($useColors) {
                             $cal->addEntry($startDate, $endDate, $title, getContrastColor($calendar->getColor()),
@@ -469,6 +481,7 @@ try
                             $sheet->setCellValue($myCol.$rowPos, makeAddressString($address));
                         }
                         $myCol++;
+                        $sheet->setCellValue($myCol++.$rowPos, formatTagNames($entry));
                         if ($image != null) {
                             $sheet->setCellValue($myCol.$rowPos, $image);
                             $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($image)->setTooltip("Click to download image");
@@ -705,6 +718,21 @@ function filterByTags($calEntries, $selectedTagIds) {
         }
     }
     return $retVal;
+}
+
+/**
+ * Format the tag names of an appointment as a comma separated string
+ * Returns an empty string when the appointment has no tags
+ *
+ * @param object $entry calendar entry
+ * @return string comma separated tag names
+ */
+function formatTagNames($entry) {
+    $names= [];
+    foreach ($entry->getTags() ?? [] as $tag) {
+        array_push($names, $tag->getName());
+    }
+    return implode(', ', $names);
 }
 
 function makeAddressString($address) {

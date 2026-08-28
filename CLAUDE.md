@@ -9,8 +9,20 @@ PHP web application that generates PDF and XLSX calendars from ChurchTools event
 **Requirements:** PHP 8.2+, Composer, web server
 
 **Local toolchain:** PHP and Composer are not on `PATH` on this machine. They ship with
-Laragon — prepend `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64` and `C:\laragon\bin\composer`
-to `$env:Path` before running `php` or `composer`.
+Laragon — prepend `C:\laragon\bin\php\php-8.3.33-Win32-vs16-x64` and `C:\laragon\bin\composer`
+to `$env:Path` before running `php` or `composer`. (Installed PHP builds are 8.3.16,
+8.3.26, 8.3.28 and 8.3.33 — check before assuming a version.)
+
+The CLI `php.ini` enables almost nothing, so Composer fails with "openssl extension is
+required" and PhpSpreadsheet needs `ext-fileinfo`. Pass the extensions explicitly:
+
+```bash
+P="C:/laragon/bin/php/php-8.3.33-Win32-vs16-x64"
+"$P/php.exe" -d extension_dir="$P/ext" -d extension=php_openssl.dll \
+  -d extension=php_mbstring.dll -d extension=php_zip.dll -d extension=php_curl.dll \
+  -d extension=php_gd.dll -d extension=php_fileinfo.dll \
+  /c/laragon/bin/composer/composer.phar install
+```
 
 ## Build / Install
 
@@ -53,6 +65,14 @@ Copy `src/config.sample` to `src/config.php`. The only setting is `serverURL` �
 - Timezone is hardcoded to `Europe/Zurich`.
 - Color contrast for text on colored backgrounds is computed via `getContrastColor()` in `generatecalendar.php`.
 - Tag filtering uses OR logic (entries matching ANY selected tag are included).
+- Appointments are fetched with `->includeTags()` so tags arrive in the same request.
+  Without it, `Appointment::getTags()` lazily fires `/api/tags/appointment/{id}` once
+  per appointment (see `Appointment.php`) — an N+1 that a year export would multiply by
+  hundreds. Keep `includeTags()` on the request whenever tags are read.
+- `PhpSpreadsheet\Shared\Date::PHPToExcel()` reads the DateTime's wall-clock fields in
+  its own timezone, and `generatecalendar.php` calls `setTimezone('Europe/Zurich')` first,
+  so XLSX times are local. (The TypeScript sibling had a UTC bug here because ExcelJS
+  serializes via `getTime()` instead — that bug does not exist in this codebase.)
 - Full-year export produces 12 pages (one per month) in PDF, or a single sheet in XLSX.
 - `index.php` and `selectcalendars.php` use `declare(strict_types=1)`; `generatecalendar.php`
   does *not*, and relies on weak-mode coercion (e.g. it passes `round()`'s float to
