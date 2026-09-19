@@ -29,6 +29,11 @@ Currently the UI is in german only
 
 ## Usage
 - Go to the `index.php` page with your webbrowser and enter your ct credentials
+- Select the calendars and the period to export, then generate a PDF or XLSX file.
+  Available periods:
+  - previous, current or next month (1 page)
+  - previous, current or next year (12 pages)
+  - a user defined date range (1 page per month, max. 24 months)
 
 ## Changelog
 - See [CHANGELOG.md](CHANGELOG.md) for the notable changes of each release

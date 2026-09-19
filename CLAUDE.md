@@ -4,25 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PHP web application that generates PDF and XLSX calendars from ChurchTools event data. Users log in with ChurchTools credentials, select calendars/resources, and export monthly or yearly calendars. The UI is German-language only.
+PHP web application that generates PDF and XLSX calendars from ChurchTools event data. Users log in with ChurchTools credentials, select calendars/resources, and export monthly, yearly or custom date range calendars. The UI is German-language only.
 
 **Requirements:** PHP 8.2+, Composer, web server
 
 **Local toolchain:** PHP and Composer are not on `PATH` on this machine. They ship with
-Laragon — prepend `C:\laragon\bin\php\php-8.3.33-Win32-vs16-x64` and `C:\laragon\bin\composer`
-to `$env:Path` before running `php` or `composer`. (Installed PHP builds are 8.3.16,
-8.3.26, 8.3.28 and 8.3.33 — check before assuming a version.)
+Laragon — prepend `C:\laragon\bin\php\php-8.3.30-Win32-vs16-x64` and `C:\laragon\bin\composer`
+to `$env:Path` before running `php` or `composer`. (The installed PHP build changes over
+time — run `ls C:\laragon\bin\php` before assuming a version.)
 
-The CLI `php.ini` enables almost nothing, so Composer fails with "openssl extension is
-required" and PhpSpreadsheet needs `ext-fileinfo`. Pass the extensions explicitly:
+`composer update` against the `churchtools-api` VCS repository hits GitHub's anonymous
+API rate limit ("Could not authenticate against github.com"). Pass the `gh` token for
+the one command: `COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"$(gh auth token)\"}}"`.
+
+The 8.3.30 CLI `php.ini` already loads openssl, mbstring, zip, curl, gd and fileinfo
+(passing them again only prints "Module already loaded" warnings), so this is enough:
 
 ```bash
-P="C:/laragon/bin/php/php-8.3.33-Win32-vs16-x64"
-"$P/php.exe" -d extension_dir="$P/ext" -d extension=php_openssl.dll \
-  -d extension=php_mbstring.dll -d extension=php_zip.dll -d extension=php_curl.dll \
-  -d extension=php_gd.dll -d extension=php_fileinfo.dll \
-  /c/laragon/bin/composer/composer.phar install
+"C:/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe" /c/laragon/bin/composer/composer.phar install
 ```
+
+Older builds had a bare `php.ini` where Composer failed with "openssl extension is
+required"; in that case add `-d extension_dir="$P/ext" -d extension=php_openssl.dll …`
+for each of the extensions above.
 
 ## Build / Install
 
@@ -81,6 +85,10 @@ Copy `src/config.sample` to `src/config.php`. The only setting is `serverURL` �
   so XLSX times are local. (The TypeScript sibling had a UTC bug here because ExcelJS
   serializes via `getTime()` instead — that bug does not exist in this codebase.)
 - Full-year export produces 12 pages (one per month) in PDF, or a single sheet in XLSX.
+  The period (`sel_month`: prev/now/next, prev_year/current_year/next_year, range)
+  is resolved to `$firstMonth`..`$lastMonth`; a `range` also sets `$rangeStart`/`$rangeEnd`,
+  which clip the API from/to of the first and last month (max. `$maxRangeMonths` = 24).
+  An invalid range throws `DateRangeException`, whose handler keeps the session.
 - `index.php` and `selectcalendars.php` use `declare(strict_types=1)`; `generatecalendar.php`
   does *not*, and relies on weak-mode coercion (e.g. it passes `round()`'s float to
   `CalendarBuilder::writeTimestamp()`, which is typed `int`). Adding strict types there

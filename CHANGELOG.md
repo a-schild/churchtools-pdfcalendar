@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.4.0 2026-09-19]
+
+### Added
+- New period "Vorangehendes Jahr" exports all 12 months of the previous year
+- New period "Zeitraum" exports a user defined date range (von/bis, max. 24 months).
+  The PDF has one page per month in the range; appointments before the start date
+  or after the end date are left out. The XLSX export lists the range on one sheet.
+- Download file names now reflect the period: `calendar-2026-09` for a month,
+  `calendar-2026` for a year and `calendar-2026-03-15_2026-06-30` for a range
+  (a year export was previously named after its last month, e.g. `calendar-2026-12`)
+
+### Changed
+- Alternating month background in XLSX now applies to every multi-month export,
+  not only full years
+- An invalid date range shows an error with a "Zurück" button and keeps the login
+  session; other errors still end the session as before
+- Updated dependencies: phpoffice/phpspreadsheet 5.10.0, guzzlehttp/guzzle 7.15.5,
+  guzzlehttp/psr7 2.13.1, guzzlehttp/promises 2.5.3, monolog/monolog 3.12.0,
+  tecnickcom/tcpdf 6.11.4
+
 ## [1.3.1 2026-08-28]
 
 ### Changed

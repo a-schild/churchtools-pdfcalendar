@@ -95,6 +95,18 @@ catch (Exception $e)
                 document.getElementById('btnPDF').disabled = !checked;
                 document.getElementById('btnXLSX').disabled = !checked;
             }
+            function selectRange()
+            {
+                document.getElementById('sel_month_range').checked = true;
+                updateRangeInputs();
+            }
+            function updateRangeInputs()
+            {
+                // Browser validation for the date fields only when a range is exported
+                var isRange = document.getElementById('sel_month_range').checked;
+                document.getElementById('range_from').required = isRange;
+                document.getElementById('range_to').required = isRange;
+            }
             function toggleResTypeCat(idToToggle)
             {
                     //var divTitle= document.getElementById("ID_"+idToToggle+"_TITLE");
@@ -151,6 +163,11 @@ catch (Exception $e)
                     el.checked= isChecked;
                 });
             }
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('input[name="sel_month"]').forEach(function(el) {
+                    el.addEventListener('change', updateRangeInputs);
+                });
+            });
             </script>
     </head>
     <body>
@@ -237,6 +254,9 @@ catch (Exception $e)
                     <div class="row">
                         <div class="col">
                             <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="prev_year" class="form-check-input">Vorangehendes Jahr</label>
+                            </div>
+                            <div class="form-check form-check-inline">
                                 <label class="form-check-label"><input type="radio" name="sel_month" value="current_year"  class="form-check-input">Aktuelles Jahr</label>
                             </div>
                             <div class="form-check form-check-inline">
@@ -244,6 +264,22 @@ catch (Exception $e)
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">(12 Seiten)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label"><input type="radio" name="sel_month" value="range" id="sel_month_range" class="form-check-input">Zeitraum</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">von&nbsp;<input type="date" name="range_from" id="range_from" class="form-control form-control-sm" value="<?= date('Y-m-01') ?>" onfocus="selectRange()"></label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">bis&nbsp;<input type="date" name="range_to" id="range_to" class="form-control form-control-sm" value="<?= date('Y-m-t') ?>" onfocus="selectRange()"></label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <label class="form-check-label">(1 Seite pro Monat, max. 24 Monate)</label>
                             </div>
                         </div>
                     </div>

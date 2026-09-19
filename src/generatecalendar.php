@@ -16,8 +16,15 @@ $printLegende = true;
 $excelTitleFontSize= 20;        // Font size of title line
 $excelHeaderBGColor= 'dddddd';  // Background color of header line
 $excelHeaderFontSize= 12;       // Font size of header line
-$excelEvenBGColor= 'eeeeee';    // Background color of even month lines (Only with full year)
+$excelEvenBGColor= 'eeeeee';    // Background color of even month lines (Only with more than one month)
 $excelDateColWidth= 15;
+$maxRangeMonths= 24;            // Maximum number of months for a user defined date range
+
+/**
+ * Invalid user defined date range; the user can go back and correct it,
+ * so the session is kept
+ */
+class DateRangeException extends Exception {}
 
 $buildPDF= true;
 $buildXLSX= true;
@@ -105,87 +112,83 @@ try
         $printEND= isset($_POST['PrintEND']);
         $useColors= isset($_POST['useColors']);
         $showTags= isset($_POST['showTags']);
-        $printFullYear= false;
         $now = new DateTime();
-        $currentDay     = $now->format("d");
-        $lastDayOfMonth = $now->format("t");
-        $currentMonth   = $now->format("n");
-        $currentYear    = $now->format("Y");
-
-        $requestedMonth = new DateTime();
-        $requestedYear= $currentYear;
-        if (isset($_POST['sel_month']))
-        {
-            if ($_POST['sel_month'] == 'prev')
-            {
-                // OK
-                $requestedMonth->sub(new DateInterval('P1M'));
-                $requestedYear= intval($requestedMonth->format("Y"));
-            }
-            elseif ($_POST['sel_month'] == 'now')
-            {
-                // OK, NOW already in $requestedMonth
-            }
-            elseif ($_POST['sel_month'] == 'next')
-            {
-                // OK
-                $requestedMonth->add(new DateInterval('P1M'));
-                $requestedYear= intval($requestedMonth->format("Y"));
-            }
-            elseif ($_POST['sel_month'] == 'current_year')
-            {
-                // OK
-                $requestedMonth->setDate($requestedYear, 1, 1);
-                $printFullYear= true;
-            }
-            elseif ($_POST['sel_month'] == 'next_year')
-            {
-                // OK
-                $requestedYear+= 1;
-                $requestedMonth->setDate($requestedYear, 1, 1);
-                $printFullYear= true;
-            }
-        }
-
-        // Move to start of day
-        $requestedMonth->setTime(0, 0);
         $now->setTime(0, 0);
 
-        $startMonth= 1;
-        $endMonth= 12;
-        if (!$printFullYear)
+        // Requested period: all months from $firstMonth to $lastMonth (both first of month).
+        // $rangeStart/$rangeEnd are only set for a user defined range and clip the
+        // first and last month to the selected days.
+        $firstMonth= new DateTime('first day of this month');
+        $firstMonth->setTime(0, 0);
+        $rangeStart= null;
+        $rangeEnd= null;
+        $selMonth= $_POST['sel_month'] ?? 'now';
+        switch ($selMonth)
         {
-            $startMonth= intval($requestedMonth->format("n"));
-            $endMonth= intval($requestedMonth->format("n"));
+            case 'prev':
+                $firstMonth->modify('-1 month');
+                $lastMonth= clone $firstMonth;
+                $fileSuffix= $firstMonth->format('Y-m');
+                break;
+            case 'next':
+                $firstMonth->modify('+1 month');
+                $lastMonth= clone $firstMonth;
+                $fileSuffix= $firstMonth->format('Y-m');
+                break;
+            case 'prev_year':
+            case 'current_year':
+            case 'next_year':
+                $yearOffset= ['prev_year' => -1, 'current_year' => 0, 'next_year' => 1][$selMonth];
+                $firstMonth->setDate(intval($now->format('Y')) + $yearOffset, 1, 1);
+                $lastMonth= clone $firstMonth;
+                $lastMonth->setDate(intval($firstMonth->format('Y')), 12, 1);
+                $fileSuffix= $firstMonth->format('Y');
+                break;
+            case 'range':
+                $rangeStart= DateTime::createFromFormat('!Y-m-d', $_POST['range_from'] ?? '');
+                $rangeEnd= DateTime::createFromFormat('!Y-m-d', $_POST['range_to'] ?? '');
+                if ($rangeStart === false || $rangeEnd === false)
+                {
+                    throw new DateRangeException('Bitte ein gültiges Von- und Bis-Datum angeben.');
+                }
+                if ($rangeEnd < $rangeStart)
+                {
+                    throw new DateRangeException('Das Bis-Datum liegt vor dem Von-Datum.');
+                }
+                $firstMonth= DateTime::createFromFormat('!Y-m-d', $rangeStart->format('Y-m-01'));
+                $lastMonth= DateTime::createFromFormat('!Y-m-d', $rangeEnd->format('Y-m-01'));
+                $monthCount= $firstMonth->diff($lastMonth)->y * 12 + $firstMonth->diff($lastMonth)->m + 1;
+                if ($monthCount > $maxRangeMonths)
+                {
+                    throw new DateRangeException('Der Zeitraum darf höchstens '.$maxRangeMonths.' Monate umfassen.');
+                }
+                $fileSuffix= $rangeStart->format('Y-m-d').'_'.$rangeEnd->format('Y-m-d');
+                break;
+            default: // 'now'
+                $lastMonth= clone $firstMonth;
+                $fileSuffix= $firstMonth->format('Y-m');
+                break;
         }
+        $multiMonth= $firstMonth != $lastMonth;
 
         $cal= null;
         $sheet= null;
         $rowPos= 1;
-        for ($loopMonth= $startMonth; $loopMonth <= $endMonth; $loopMonth++ )
+        for ($requestedMonth= clone $firstMonth; $requestedMonth <= $lastMonth; $requestedMonth->modify('+1 month'))
         {
-            $requestedMonth->setDate($requestedYear, $loopMonth, 1);
-            $rmLastDayOfMonth = $requestedMonth->format("t");
-            $rmMonth   = $requestedMonth->format("m");
-            $rmYear    = $requestedMonth->format("Y");
-//echo "Month: ".$rmMonth;
-//echo "Year:  " .$rmYear;
-//echo "EndMonth:  " .$rmLastDayOfMonth;
-    
-            // Calculate start/end dates of requested month
-            //$tsStart            = mktime(0, 0, 0, $rmMonth, 1, $rmYear);
-            //$startOfMonth  = getDate($tsStart);
-            //$days_in_month = date('t', $tsStart);
-            //$tsEnd            = mktime(23, 59, 59, $rmMonth, $rmLastDayOfMonth, $rmYear);
-
-            $sString= $rmYear . '-' . $rmMonth . '-01';
-//            echo "Start string: ".$sString;
-            $eString= $rmYear . '-' . $rmMonth . '-' . $rmLastDayOfMonth;
-//            echo "End string: ".$eString;
-            
-            $startDate= DateTime::createFromFormat('Y-m-d', $sString);
+            // Calculate start/end dates of requested month, clipped to a user defined range
+            $startDate= clone $requestedMonth;
+            $endDate= clone $requestedMonth;
+            $endDate->modify('last day of this month');
+            if ($rangeStart !== null && $startDate < $rangeStart)
+            {
+                $startDate= clone $rangeStart;
+            }
+            if ($rangeEnd !== null && $endDate > $rangeEnd)
+            {
+                $endDate= clone $rangeEnd;
+            }
             $startDate->setTime(0, 0);
-            $endDate= DateTime::createFromFormat('Y-m-d', $eString);
             $endDate->setTime(23, 59, 59);
 
             $dDiffToStart = $startDate->diff($now);
@@ -497,7 +500,7 @@ try
                                         setARGB(aschild\PDFCalendarBuilder\ColorNames::html2html($calendar->getColor(), false));
                             }
                         }
-                        else if ($printFullYear)
+                        else if ($multiMonth)
                         {
                             if ($startDate->format("m") % 2 == 0)
                             {
@@ -582,13 +585,13 @@ try
         }
         if ($buildPDF)
         {
-            $cal->Output("calendar-".$requestedMonth->format("Y") .'-'.$requestedMonth->format("m").".pdf", "I");
+            $cal->Output("calendar-".$fileSuffix.".pdf", "I");
         }
         else
         {
             $writer = new Xlsx($cal);
             header('Content-Type:vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition:attachment;filename="'."calendar-".$requestedMonth->format("Y") .'-'.$requestedMonth->format("m").'.xlsx"');
+            header('Content-Disposition:attachment;filename="'."calendar-".$fileSuffix.'.xlsx"');
             header('Cache-Control:max-age=0');
             $writer->save('php://output');
         }
@@ -623,7 +626,10 @@ catch (Exception $e)
 {
     $errorMessage= $e->getMessage();
     $hasError= true;
-    session_destroy();
+    $isRangeError= $e instanceof DateRangeException;
+    if (!$isRangeError) {
+        session_destroy();
+    }
 ?>    
 <!doctype html>
 <html>
@@ -639,10 +645,14 @@ catch (Exception $e)
             <h1>CT Calendarbuilder</h1>
             <h2>Fehler</h2>
             <div class="alert alert-danger" role="alert">
-            Error: <?= $errorMessage ?>
+            Error: <?= htmlspecialchars($errorMessage) ?>
             </div>
             <div>
+                <?php if ($isRangeError) { ?>
+                <a href="javascript:history.back()" class="btn btn-primary">Zurück</a>
+                <?php } else { ?>
                 <a href="index.php" class="btn btn-primary">Zum Login</a>
+                <?php } ?>
             </div>
         </div>
     </body>
