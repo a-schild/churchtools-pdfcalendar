@@ -1,5 +1,6 @@
 <?php
 require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/common.php';
 
 use \CTApi\CTConfig;
 use \CTApi\Models\Calendars\Calendar\CalendarRequest;
@@ -19,12 +20,7 @@ $excelHeaderFontSize= 12;       // Font size of header line
 $excelEvenBGColor= 'eeeeee';    // Background color of even month lines (Only with more than one month)
 $excelDateColWidth= 15;
 $maxRangeMonths= 24;            // Maximum number of months for a user defined date range
-
-/**
- * Invalid user defined date range; the user can go back and correct it,
- * so the session is kept
- */
-class DateRangeException extends Exception {}
+$paperFormats= ['A5', 'A4', 'A3', 'A2'];
 
 $buildPDF= true;
 $buildXLSX= true;
@@ -43,21 +39,16 @@ function cellColor($sheet,$cells,$color){
     ->setRGB($color); //i.e,colorcode=D3D3D3;
 }
 
-session_start();
+ctStartSession();
 
-$userName= $_SESSION["userName"];
-$password= $_SESSION["password"];
-$serverURL= $_SESSION["serverURL"];
 try
 {
+    ctCheckCsrf();
+    // Reuses the ChurchTools session of the login, the password is not stored
+    ctRestoreApiSession();
+    // Release the session lock, the export can take a while
+    session_write_close();
 
-    CTConfig::setApiUrl('https://'.$serverURL);
-    //authenticates the application and load the api-key into the config
-    CTConfig::authWithCredentials(
-        $userName,
-        $password
-    );
-    
     //
     // All calendars
     // 
@@ -100,7 +91,7 @@ try
         $paperFormat = "A4";
         if (isset($_POST['sel_paper']))
         {
-            $paperFormat= $_POST['sel_paper'];
+            $paperFormat= in_array($_POST['sel_paper'], $paperFormats, true) ? $_POST['sel_paper'] : 'A4';
         }
 
         $landscape= true;
@@ -149,18 +140,18 @@ try
                 $rangeEnd= DateTime::createFromFormat('!Y-m-d', $_POST['range_to'] ?? '');
                 if ($rangeStart === false || $rangeEnd === false)
                 {
-                    throw new DateRangeException('Bitte ein gültiges Von- und Bis-Datum angeben.');
+                    throw new UserInputException('Bitte ein gültiges Von- und Bis-Datum angeben.');
                 }
                 if ($rangeEnd < $rangeStart)
                 {
-                    throw new DateRangeException('Das Bis-Datum liegt vor dem Von-Datum.');
+                    throw new UserInputException('Das Bis-Datum liegt vor dem Von-Datum.');
                 }
                 $firstMonth= DateTime::createFromFormat('!Y-m-d', $rangeStart->format('Y-m-01'));
                 $lastMonth= DateTime::createFromFormat('!Y-m-d', $rangeEnd->format('Y-m-01'));
                 $monthCount= $firstMonth->diff($lastMonth)->y * 12 + $firstMonth->diff($lastMonth)->m + 1;
                 if ($monthCount > $maxRangeMonths)
                 {
-                    throw new DateRangeException('Der Zeitraum darf höchstens '.$maxRangeMonths.' Monate umfassen.');
+                    throw new UserInputException('Der Zeitraum darf höchstens '.$maxRangeMonths.' Monate umfassen.');
                 }
                 $fileSuffix= $rangeStart->format('Y-m-d').'_'.$rangeEnd->format('Y-m-d');
                 break;
@@ -332,7 +323,7 @@ try
                     //$sheet->getPageSetup()->setFitToWidth(1);  // Scale to 1 page width
                     //$sheet->getPageSetup()->setFitToHeight(0); // Don't scale to height
                     $sheet->getStyle( 'A'.$rowPos )->getFont()->setBold( true )->setSize($excelTitleFontSize);
-                    $sheet->setCellValue('A'.$rowPos++, $caption);
+                    ctSetText($sheet, 'A'.$rowPos++, $caption);
                     $myCol= 'A';
                     if ($printLegende)
                     {
@@ -447,7 +438,7 @@ try
                         $myCol= 'A';
                         if ($printLegende)
                         {
-                            $sheet->setCellValue($myCol.$rowPos, $calendar->getName());
+                            ctSetText($sheet, $myCol.$rowPos, $calendar->getName());
                             $myCol++;
                         }
                         $sheet->getStyle($myCol.$rowPos)
@@ -471,23 +462,27 @@ try
                                               $endDate );  
                             $sheet->setCellValue($myCol++.$rowPos, $excelEndDate);
                         }
-                        $sheet->setCellValue($myCol++.$rowPos, $title);
-                        $sheet->setCellValue($myCol++.$rowPos, $remarks);
-                        $sheet->setCellValue($myCol++.$rowPos, $moreInfos);
+                        ctSetText($sheet, $myCol++.$rowPos, $title);
+                        ctSetText($sheet, $myCol++.$rowPos, $remarks);
+                        ctSetText($sheet, $myCol++.$rowPos, $moreInfos);
 
                         if ($link != null) {
-                            $sheet->setCellValue($myCol.$rowPos, $link);
-                            $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($link)->setTooltip("Click to download image");
+                            ctSetText($sheet, $myCol.$rowPos, $link);
+                            if (ctIsWebUrl($link)) {
+                                $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($link)->setTooltip("Link öffnen");
+                            }
                         }
                         $myCol++;
                         if ($address != null) {
-                            $sheet->setCellValue($myCol.$rowPos, makeAddressString($address));
+                            ctSetText($sheet, $myCol.$rowPos, makeAddressString($address));
                         }
                         $myCol++;
-                        $sheet->setCellValue($myCol++.$rowPos, formatTagNames($entry));
+                        ctSetText($sheet, $myCol++.$rowPos, formatTagNames($entry));
                         if ($image != null) {
-                            $sheet->setCellValue($myCol.$rowPos, $image);
-                            $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($image)->setTooltip("Click to download image");
+                            ctSetText($sheet, $myCol.$rowPos, $image);
+                            if (ctIsWebUrl($image)) {
+                                $sheet->getCell($myCol.$rowPos)->getHyperlink()->setUrl($image)->setTooltip("Click to download image");
+                            }
                         }
                         if ($printLegende )
                         {
@@ -538,7 +533,7 @@ try
                         $myCol= 'A';
                         if ($printLegende)
                         {
-                            $sheet->setCellValue($myCol++.$rowPos, $resource->getDescription());
+                            ctSetText($sheet, $myCol++.$rowPos, $resource->getDescription());
                         }
                         // Set the number format mask so that the excel timestamp  
                         // will be displayed as a human-readable date/time 
@@ -565,9 +560,9 @@ try
                                               $endDate );  
                             $sheet->setCellValue($myCol++.$rowPos, $excelEndDate);
                         }
-                        $sheet->setCellValue($myCol++.$rowPos, $title);
-                        $sheet->setCellValue($myCol++.$rowPos, $remark);
-                        $sheet->setCellValue($myCol++.$rowPos, var_export($entry, true));
+                        ctSetText($sheet, $myCol++.$rowPos, $title);
+                        ctSetText($sheet, $myCol++.$rowPos, $remark);
+                        ctSetText($sheet, $myCol++.$rowPos, var_export($entry, true));
                         $rowPos++;
                     }
                 }
@@ -626,9 +621,10 @@ catch (Exception $e)
 {
     $errorMessage= $e->getMessage();
     $hasError= true;
-    $isRangeError= $e instanceof DateRangeException;
-    if (!$isRangeError) {
-        session_destroy();
+    // Errors the user can correct keep the login, anything else ends the session
+    $isUserError= $e instanceof UserInputException;
+    if (!$isUserError) {
+        ctLogout();
     }
 ?>    
 <!doctype html>
@@ -645,14 +641,13 @@ catch (Exception $e)
             <h1>CT Calendarbuilder</h1>
             <h2>Fehler</h2>
             <div class="alert alert-danger" role="alert">
-            Error: <?= htmlspecialchars($errorMessage) ?>
+            Error: <?= h($errorMessage) ?>
             </div>
             <div>
-                <?php if ($isRangeError) { ?>
+                <?php if ($isUserError) { ?>
                 <a href="javascript:history.back()" class="btn btn-primary">Zurück</a>
-                <?php } else { ?>
-                <a href="index.php" class="btn btn-primary">Zum Login</a>
                 <?php } ?>
+                <a href="index.php" class="btn btn-secondary">Zum Login</a>
             </div>
         </div>
     </body>
@@ -672,15 +667,6 @@ function invertColor($hex) {
         $new .= (strlen($hexDigits) < 2) ? '0' . $hexDigits : $hexDigits;
     }
     return '#' . $new;
-}
-
-function getContrastColor($hexcolor) 
-{               
-    $r = hexdec(substr($hexcolor, 1, 2));
-    $g = hexdec(substr($hexcolor, 3, 2));
-    $b = hexdec(substr($hexcolor, 5, 2));
-    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
-    return ($yiq >= 128) ? 'black' : 'white';
 }
 
 

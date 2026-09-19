@@ -1,0 +1,5 @@
+# Block web access to dependencies, Composer files, configuration and helpers.
+# vendor/ may contain log files of the ChurchTools API client.
+RedirectMatch 404 (?i)/vendor(/|$)
+RedirectMatch 404 (?i)/(composer\.(json|lock|phar)|config\.(php|sample)|common\.php)$
+RedirectMatch 404 /\.

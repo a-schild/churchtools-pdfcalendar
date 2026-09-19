@@ -1,15 +1,10 @@
 <?php
 declare(strict_types=1); 
-session_start();
-if (file_exists ( 'config.php' ) )
-{
-    $configs = include('config.php');
-}
-else
-{
-    $configs= null;
-}
-$serverURL= $configs["serverURL"];
+require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/common.php';
+
+ctStartSession();
+$serverURL= ctConfiguredServerURL();
 ?>
 <!doctype html>
 <html>
@@ -43,9 +38,7 @@ $serverURL= $configs["serverURL"];
              <div class="form-group row">
                  <label for="submit" class="col-sm-2 col-form-label"></label>
                  <button type="submit" class="btn btn-primary">Anmelden <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-            <?php if (isset($serverURL)) { ?>
-            <input type="hidden" name="serverURL" value="<?= $serverURL ?>" >
-            <?php } ?>
+            <input type="hidden" name="csrfToken" value="<?= h(ctCsrfToken()) ?>">
              </div>
         </form>
         </div>

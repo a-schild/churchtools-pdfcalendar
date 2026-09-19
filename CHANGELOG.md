@@ -24,6 +24,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Updated dependencies: phpoffice/phpspreadsheet 5.10.0, guzzlehttp/guzzle 7.15.5,
   guzzlehttp/psr7 2.13.1, guzzlehttp/promises 2.5.3, monolog/monolog 3.12.0,
   tecnickcom/tcpdf 6.11.4
+- The ChurchTools password is no longer kept in the PHP session; only the
+  ChurchTools session cookie is stored. An expired ChurchTools session now asks
+  for a new login.
+- "Abmelden" now really logs out (new `logout.php`), before it only showed the login page
+
+### Security
+- Fixed script injection through the login error message: a server chosen by an
+  attacker could return HTML that was shown unescaped
+- Fixed script injection through calendar, tag and resource names and calendar colors
+- The server URL from `config.php` can no longer be overridden by the login form.
+  A user entered server must be a plain public host name (no IP, port or path, no
+  private or reserved addresses); API requests do not follow redirects and connect
+  to the checked address
+- All forms are protected by a CSRF token
+- XLSX: appointment texts starting with `=` are written as text, not as formulas;
+  only http(s) links become hyperlinks
+- Session hardening: new session id after login, `HttpOnly`, `SameSite=Lax` and
+  (on HTTPS) `Secure` cookies, strict session mode
+- The ChurchTools API client no longer writes its log files into `vendor/`; a new
+  `.htaccess` blocks web access to `vendor/`, Composer files and `config.php`.
+  **Delete old `vendor/5pm-hdh/churchtools-api/churchtools-api*.log` files on existing
+  installations.**
+- Only the paper formats A2–A5 are accepted
+- Release workflow: `montudor/action-zip` is pinned to a commit SHA
 
 ## [1.3.1 2026-08-28]
 

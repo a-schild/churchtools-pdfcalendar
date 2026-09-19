@@ -48,7 +48,7 @@ jobs:
           find src/vendor \( -name 'README.md' -o -name 'CHANGELOG*' -o -name 'CONTRIBUTING.md' \
             -o -name 'UPGRADE*.md' \) -delete 2>/dev/null || true
       - name: Create artifact
-        uses: montudor/action-zip@v1
+        uses: montudor/action-zip@a8e75c9faefcd80fac3baf53ef40b9b119d5b702 # v1
         with:
           args: zip -X -r ${{ github.event.repository.name }}-${{ github.ref_name }}.zip . -x *.git* .claude/* CLAUDE.md src/nbproject/* src/composer.lock
       - name: Extract release notes from CHANGELOG

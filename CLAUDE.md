@@ -51,13 +51,39 @@ back to auto-generated notes.
 
 ## Architecture
 
-Three-page stateless web flow — no database, no framework, no MVC. All data comes from the ChurchTools REST API on demand; credentials live only in `$_SESSION`.
+Three-page stateless web flow — no database, no framework, no MVC. All data comes from the ChurchTools REST API on demand. The password is never stored: after login only the ChurchTools session cookies (`$_SESSION["ctCookies"]`) and the server host are kept.
 
 ### Page flow
 
 1. **`src/index.php`** — Login form. Collects ChurchTools server URL (or reads it from `config.php`), email, password. POSTs to step 2.
 2. **`src/selectcalendars.php`** — Authenticates via ChurchTools API, fetches available calendars/resources/services/tags, renders selection UI with output options (time period, paper size, orientation, filters, colors). Two submit buttons: PDF or XLSX.
-3. **`src/generatecalendar.php`** — Re-authenticates, fetches appointments for the selected date range, applies public/private and tag filters, generates the chosen output format and streams it as a download.
+3. **`src/generatecalendar.php`** — Restores the ChurchTools session from the saved cookies, fetches appointments for the selected date range, applies public/private and tag filters, generates the chosen output format and streams it as a download.
+
+Shared helpers live in **`src/common.php`** (included by every page): hardened session
+start, `ctLogout()` (used by `src/logout.php`), CSRF token, server URL validation,
+ChurchTools session save/restore, `h()` escaping, `ctSafeColor()`, `getContrastColor()`,
+`ctSetText()` for XLSX cells. `UserInputException` marks errors whose message is safe to
+show and which keep the session.
+
+### Security rules
+
+- Escape every value from ChurchTools or the request with `h()` in HTML; colors go
+  through `ctSafeColor()`, IDs in inline JS through `(int)`.
+- Every POST form carries `csrfToken` (`ctCsrfToken()`), and every POST handler calls
+  `ctCheckCsrf()`.
+- The server URL comes from `ctResolveServerURL()`: `config.php` wins; user input must
+  be a public host name. It installs a `CTClient` without redirects, pinned via
+  `CURLOPT_RESOLVE` to the checked IP (against DNS rebinding).
+- XLSX text cells use `ctSetText()` (`setCellValue()` turns a leading `=` into a
+  formula); only `ctIsWebUrl()` links become hyperlinks.
+- `common.php` disables the API client file log (`CTLog::enableFileLog(false)`), which
+  would otherwise write into `vendor/` inside the web root. `src/.htaccess` blocks
+  `vendor/`, Composer files and `config.php`.
+- The API client does *not* round-trip the session cookie via
+  `getSessionCookieString()`/`setSessionCookie()`: the string loses the domain of a
+  host-only cookie, so the restored cookie is never sent. Save/restore the
+  `CookieJar::toArray()` data instead (the jar is reachable as
+  `CTConfig::getRequestConfig()["cookies"]`).
 
 ### Key dependencies
 
@@ -88,7 +114,7 @@ Copy `src/config.sample` to `src/config.php`. The only setting is `serverURL` �
   The period (`sel_month`: prev/now/next, prev_year/current_year/next_year, range)
   is resolved to `$firstMonth`..`$lastMonth`; a `range` also sets `$rangeStart`/`$rangeEnd`,
   which clip the API from/to of the first and last month (max. `$maxRangeMonths` = 24).
-  An invalid range throws `DateRangeException`, whose handler keeps the session.
+  An invalid range throws `UserInputException`, whose handler keeps the session.
 - `index.php` and `selectcalendars.php` use `declare(strict_types=1)`; `generatecalendar.php`
   does *not*, and relies on weak-mode coercion (e.g. it passes `round()`'s float to
   `CalendarBuilder::writeTimestamp()`, which is typed `int`). Adding strict types there

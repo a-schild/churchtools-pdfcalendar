@@ -27,6 +27,14 @@ Currently the UI is in german only
   composer update
   ```
 
+## Security notes
+- Serve the application over HTTPS only, the login form sends ChurchTools passwords
+- `src/.htaccess` blocks web access to `vendor/`, the Composer files and `config.php`.
+  On nginx or other servers without `.htaccess` support, deny these paths in the
+  server configuration.
+- Without `serverURL` in `config.php`, users may log in to any public ChurchTools
+  host. Set it to restrict the installation to your own server.
+
 ## Usage
 - Go to the `index.php` page with your webbrowser and enter your ct credentials
 - Select the calendars and the period to export, then generate a PDF or XLSX file.

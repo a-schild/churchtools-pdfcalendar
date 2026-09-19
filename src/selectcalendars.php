@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/common.php';
 
 use \CTApi\CTConfig;
 use \CTApi\Models\Common\Config\ConfigRequest;
@@ -9,15 +10,18 @@ use \CTApi\Models\Calendars\Resource\ResourceRequest;
 use \CTApi\Models\Events\Service\ServiceRequest;
 use \CTApi\Models\Common\Tag\TagRequest;
 
-$serverURL= filter_input(INPUT_POST, "serverURL");
-$userName= filter_input(INPUT_POST, "email");
-$password= filter_input(INPUT_POST, "password");
+ctStartSession();
+
+$userName= (string)filter_input(INPUT_POST, "email");
+$password= (string)filter_input(INPUT_POST, "password");
 
 $hasError= false;
 $errorMessage= null;
 $visibleCalendars;
 try
 {
+    ctCheckCsrf();
+    $serverURL= ctResolveServerURL(filter_input(INPUT_POST, "serverURL"));
     CTConfig::setApiUrl('https://'.$serverURL);
     //authenticates the application and load the api-key into the config
     CTConfig::authWithCredentials(
@@ -66,16 +70,17 @@ try
 //    $visibleServiceGroups= $serviceMasterData->getServiceGroups();
 //    $visibleServices= $serviceMasterData->getServiceEntries();
  
-    session_start();
-    $_SESSION['userName'] = $userName;
-    $_SESSION['password'] = $password;
-    $_SESSION['serverURL']= $serverURL;
+    // New session id after login against session fixation; only the ChurchTools
+    // session cookies are kept, never the password
+    session_regenerate_id(true);
+    unset($_SESSION['userName'], $_SESSION['password']);
+    ctSaveApiSession($serverURL);
 }
 catch (Exception $e)
 {
     $errorMessage= $e->getMessage();
     $hasError= true;
-    session_destroy();
+    unset($_SESSION['serverURL'], $_SESSION['ctCookies'], $_SESSION['userName'], $_SESSION['password']);
 }
 ?>
 <!doctype html>
@@ -176,13 +181,14 @@ catch (Exception $e)
             <?php if ($hasError) { ?>
             <h2>Login fehlgeschlagen</h2>
             <div class="alert alert-danger" role="alert">
-            Error in login: <?= $errorMessage ?>
+            Error in login: <?= h($errorMessage) ?>
             </div>
             <div>
                 <a href="index.php" class="btn btn-primary">Zum Login</a>
             </div>
             <?php } else { ?>
             <form action="generatecalendar.php" target="_blank" method="post">
+                <input type="hidden" name="csrfToken" value="<?= h(ctCsrfToken()) ?>">
                 <div class="row">
                     <div class="col-4 calendarcol">
                         <h5>Kalender</h5>
@@ -193,8 +199,8 @@ catch (Exception $e)
                             ?><h6>Gruppenkalender</h6><?php
                         }
                         ?>
-                    <div class="calendar form-check" style="background-color: <?= $cal->getColor()?>; color:<?= getContrastColor($cal->getColor())?>;">
-                        <label class="form-check-label" for="CAL_<?= $cal->getId() ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= $cal->getId() ?>" name="CAL_<?= $cal->getId() ?>" value="CAL_<?= $cal->getId() ?>" onchange="updateSubmitButtons()"><?= $cal->getName() ?></label>
+                    <div class="calendar form-check" style="background-color: <?= ctSafeColor($cal->getColor()) ?>; color:<?= getContrastColor($cal->getColor()) ?>;">
+                        <label class="form-check-label" for="CAL_<?= h($cal->getId()) ?>"><input type="checkbox" class="form-check-input" id="CAL_<?= h($cal->getId()) ?>" name="CAL_<?= h($cal->getId()) ?>" value="CAL_<?= h($cal->getId()) ?>" onchange="updateSubmitButtons()"><?= h($cal->getName()) ?></label>
                     </div>
             <?php } ?>
                     </div>
@@ -203,7 +209,7 @@ catch (Exception $e)
                         <p class="small text-muted">Keine Auswahl = alle Termine</p>
             <?php foreach( $appointmentTags as $tag) { ?>
                     <div class="tag form-check">
-                        <label class="form-check-label" for="TAG_<?= $tag->getId() ?>"><input type="checkbox" class="form-check-input" id="TAG_<?= $tag->getId() ?>" name="TAG_<?= $tag->getId() ?>" value="TAG_<?= $tag->getId() ?>"><?= $tag->getName() ?></label>
+                        <label class="form-check-label" for="TAG_<?= h($tag->getId()) ?>"><input type="checkbox" class="form-check-input" id="TAG_<?= h($tag->getId()) ?>" name="TAG_<?= h($tag->getId()) ?>" value="TAG_<?= h($tag->getId()) ?>"><?= h($tag->getName()) ?></label>
                     </div>
             <?php } ?>
                     </div>
@@ -213,19 +219,19 @@ catch (Exception $e)
                         ?>
                     <div class="resource form-check"  >
                         <div class="resourcetype">
-                            <input type="checkbox" class="form-check-input" id="REST_<?= $resType->getId()?>" onclick="toggleResType('<?= $resType->getId()?>')"/>
-                            <a href="#"  onclick="toggleResTypeCat('<?= $resType->getId() ?>'); return false;">
-                                <h6 class="col-10"><?= $resType->getName() ?></h6>
-                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= $resType->getId()?>_PLUS"></i>
+                            <input type="checkbox" class="form-check-input" id="REST_<?= h($resType->getId()) ?>" onclick="toggleResType(<?= (int)$resType->getId() ?>)"/>
+                            <a href="#"  onclick="toggleResTypeCat(<?= (int)$resType->getId() ?>); return false;">
+                                <h6 class="col-10"><?= h($resType->getName()) ?></h6>
+                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= h($resType->getId()) ?>_PLUS"></i>
                             </a>
-                            <div id="REST_WRAPPER_<?= $resType->getId() ?>" style="display:none">
+                            <div id="REST_WRAPPER_<?= h($resType->getId()) ?>" style="display:none">
                       <?php foreach ($allResources as $resource) {
                                 // Check if in resource type
                                 if ($resource->getResourceTypeId() == $resType->getId()) {
                                 ?>
-                            &nbsp;<label class="form-check-label" for="RES_<?= $resource->getId() ?>">
-                                <input type="checkbox" class="form-check-input RES_<?= $resType->getId()?>" id="RES_<?= $resource->getId() ?>" name="RES_<?= $resource->getId() ?>" value="RES_<?= $resource->getId() ?>">
-                                        <?= $resource->getName() ?></label><br/>
+                            &nbsp;<label class="form-check-label" for="RES_<?= h($resource->getId()) ?>">
+                                <input type="checkbox" class="form-check-input RES_<?= h($resType->getId()) ?>" id="RES_<?= h($resource->getId()) ?>" name="RES_<?= h($resource->getId()) ?>" value="RES_<?= h($resource->getId()) ?>">
+                                        <?= h($resource->getName()) ?></label><br/>
                             <?php } ?>
                         <?php }  ?>
                             </div>
@@ -329,7 +335,7 @@ catch (Exception $e)
              <div class="form-group row mt-2 ml-1">
                  <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1" id="btnPDF" disabled>PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
                  <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1" id="btnXLSX" disabled>XLSX erstellen <i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
-                 <a href="index.php" class="btn btn-secondary mr-1">Abmelden <i class="fa fa-sign-out" aria-hidden="true"></i></a>
+                 <a href="logout.php" class="btn btn-secondary mr-1">Abmelden <i class="fa fa-sign-out" aria-hidden="true"></i></a>
              </div>
             </form>
             <?php } ?>
@@ -339,14 +345,3 @@ catch (Exception $e)
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </body>
 </html>
-<?php 
-
-function getContrastColor($hexcolor) 
-{               
-    $r = hexdec(substr($hexcolor, 1, 2));
-    $g = hexdec(substr($hexcolor, 3, 2));
-    $b = hexdec(substr($hexcolor, 5, 2));
-    $yiq = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
-    return ($yiq >= 128) ? 'black' : 'white';
-}
-
