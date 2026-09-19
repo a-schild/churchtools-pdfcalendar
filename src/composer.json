@@ -3,7 +3,7 @@
     "description":"Generates pdf calendars from churchtool servers",
     "keywords": ["pdf", "calendar", "ct", "churchtools"],
     "type": "project",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "license": "Apache-2.0",
     "authors": [
         {

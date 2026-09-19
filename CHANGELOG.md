@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.5.0 2026-09-19]
+
+### Changed
+- Frontend updated from Bootstrap 4.3.1 to 5.3.8 and from Font Awesome 4.7.0 to
+  Font Awesome Free 7.3.1, both loaded from jsDelivr with SRI hashes
+- jQuery 3.3.1, Popper and the Bootstrap JavaScript are no longer loaded; the pages
+  did not use them
+- Login form: wider input fields, labels are now linked to their fields, browsers can
+  autofill the credentials
+- The von/bis date fields of the "Zeitraum" period are now on one line
+
 ## [1.4.0 2026-09-19]
 
 ### Added

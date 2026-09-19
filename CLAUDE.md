@@ -122,4 +122,7 @@ Copy `src/config.sample` to `src/config.php`. The only setting is `serverURL` â€
 - PHP files mix inline HTML/PHP.
 - `CalendarBuilder::output()` discards TCPDF's return value, so only the streaming
   destinations (`I`, `D`) work â€” `S` returns nothing.
-- Frontend uses Bootstrap 4.3.1, Font Awesome 4.7.0, jQuery 3.3.1 (all CDN).
+- Frontend uses Bootstrap 5.3.8 (CSS only) and Font Awesome Free 7.3.1 from jsDelivr, with
+  SRI hashes. No Bootstrap JS, jQuery or Popper: the page scripts are plain JS. In a
+  Bootstrap 5 `.row` every direct child gets `width: 100%`, so wrap inputs and buttons
+  in `col-*` divs. Icons use FA 6+ names (`fa-solid fa-right-to-bracket`, not `fa fa-sign-in`).

@@ -89,8 +89,8 @@ catch (Exception $e)
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Churchtools Calendarbuilder</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css" integrity="sha384-qrALq7+6jBOZIQsNnT6xGkMDru64qD6uTlDra39xrt2SoXl4pO3FX6Roz/RpR/BS" crossorigin="anonymous">
         <link rel="stylesheet" href="styles.css">
 		<link rel="icon" type="image/png" href="favicon.png">
         <script>
@@ -119,14 +119,14 @@ catch (Exception $e)
                     var divContent= document.getElementById("REST_WRAPPER_"+idToToggle);
                     if (divContent.style.display === "none" || divContent.style.display === "" )
                     {
-                            divPlus.classList.add("fa-minus-square");
-                            divPlus.classList.remove("fa-plus-square");
+                            divPlus.classList.add("fa-square-minus");
+                            divPlus.classList.remove("fa-square-plus");
                             divContent.style.display= "block";
                     }
                     else
                     {
-                            divPlus.classList.remove("fa-minus-square");
-                            divPlus.classList.add("fa-plus-square");
+                            divPlus.classList.remove("fa-square-minus");
+                            divPlus.classList.add("fa-square-plus");
                             divContent.style.display = "none";
                     }
             }
@@ -147,14 +147,14 @@ catch (Exception $e)
                     var divContent= document.getElementById("SRVGRP_WRAPPER_"+idToToggle);
                     if (divContent.style.display === "none" || divContent.style.display === "" )
                     {
-                            divPlus.classList.add("fa-minus-square");
-                            divPlus.classList.remove("fa-plus-square");
+                            divPlus.classList.add("fa-square-minus");
+                            divPlus.classList.remove("fa-square-plus");
                             divContent.style.display= "block";
                     }
                     else
                     {
-                            divPlus.classList.remove("fa-minus-square");
-                            divPlus.classList.add("fa-plus-square");
+                            divPlus.classList.remove("fa-square-minus");
+                            divPlus.classList.add("fa-square-plus");
                             divContent.style.display = "none";
                     }
             }
@@ -206,7 +206,7 @@ catch (Exception $e)
                     </div>
                     <div class="col-4 tagcol">
                         <h5>Tags</h5>
-                        <p class="small text-muted">Keine Auswahl = alle Termine</p>
+                        <p class="small text-body-secondary">Keine Auswahl = alle Termine</p>
             <?php foreach( $appointmentTags as $tag) { ?>
                     <div class="tag form-check">
                         <label class="form-check-label" for="TAG_<?= h($tag->getId()) ?>"><input type="checkbox" class="form-check-input" id="TAG_<?= h($tag->getId()) ?>" name="TAG_<?= h($tag->getId()) ?>" value="TAG_<?= h($tag->getId()) ?>"><?= h($tag->getName()) ?></label>
@@ -222,7 +222,7 @@ catch (Exception $e)
                             <input type="checkbox" class="form-check-input" id="REST_<?= h($resType->getId()) ?>" onclick="toggleResType(<?= (int)$resType->getId() ?>)"/>
                             <a href="#"  onclick="toggleResTypeCat(<?= (int)$resType->getId() ?>); return false;">
                                 <h6 class="col-10"><?= h($resType->getName()) ?></h6>
-                                    <i class="col-1 fa fa-plus-square-o" aria-hidden="true" id="REST_<?= h($resType->getId()) ?>_PLUS"></i>
+                                    <i class="col-1 fa-regular fa-square-plus" aria-hidden="true" id="REST_<?= h($resType->getId()) ?>_PLUS"></i>
                             </a>
                             <div id="REST_WRAPPER_<?= h($resType->getId()) ?>" style="display:none">
                       <?php foreach ($allResources as $resource) {
@@ -279,10 +279,10 @@ catch (Exception $e)
                                 <label class="form-check-label"><input type="radio" name="sel_month" value="range" id="sel_month_range" class="form-check-input">Zeitraum</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <label class="form-check-label">von&nbsp;<input type="date" name="range_from" id="range_from" class="form-control form-control-sm" value="<?= date('Y-m-01') ?>" onfocus="selectRange()"></label>
+                                <label class="form-check-label">von&nbsp;<input type="date" name="range_from" id="range_from" class="form-control form-control-sm d-inline-block w-auto" value="<?= date('Y-m-01') ?>" onfocus="selectRange()"></label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <label class="form-check-label">bis&nbsp;<input type="date" name="range_to" id="range_to" class="form-control form-control-sm" value="<?= date('Y-m-t') ?>" onfocus="selectRange()"></label>
+                                <label class="form-check-label">bis&nbsp;<input type="date" name="range_to" id="range_to" class="form-control form-control-sm d-inline-block w-auto" value="<?= date('Y-m-t') ?>" onfocus="selectRange()"></label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <label class="form-check-label">(1 Seite pro Monat, max. 24 Monate)</label>
@@ -332,16 +332,13 @@ catch (Exception $e)
                         <input type="checkbox" class="form-check-input" id="showTags" name="showTags" value="showTags">
                         <label class="form-check-label" for="showTags">Tags anzeigen (nur PDF)</label>
                 </div>
-             <div class="form-group row mt-2 ml-1">
-                 <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary mr-1" id="btnPDF" disabled>PDF erstellen <i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
-                 <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary mr-1" id="btnXLSX" disabled>XLSX erstellen <i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
-                 <a href="logout.php" class="btn btn-secondary mr-1">Abmelden <i class="fa fa-sign-out" aria-hidden="true"></i></a>
+             <div class="mt-3 mb-3">
+                 <button type="submit" name="outputFormatPDF" value="PDF erstellen" class="btn btn-primary me-1" id="btnPDF" disabled>PDF erstellen <i class="fa-regular fa-file-pdf" aria-hidden="true"></i></button>
+                 <button type="submit" name="outputFormatXLSX" value="XLSX erstellen" class="btn btn-primary me-1" id="btnXLSX" disabled>XLSX erstellen <i class="fa-regular fa-file-excel" aria-hidden="true"></i></button>
+                 <a href="logout.php" class="btn btn-secondary me-1">Abmelden <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i></a>
              </div>
             </form>
             <?php } ?>
         </div>
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </body>
 </html>

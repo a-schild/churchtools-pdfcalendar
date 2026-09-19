@@ -12,8 +12,8 @@ $serverURL= ctConfiguredServerURL();
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Calendarbuilder login</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css" integrity="sha384-qrALq7+6jBOZIQsNnT6xGkMDru64qD6uTlDra39xrt2SoXl4pO3FX6Roz/RpR/BS" crossorigin="anonymous">
 		<link rel="icon" type="image/png" href="favicon.png">
     </head>
     <body>
@@ -22,28 +22,32 @@ $serverURL= ctConfiguredServerURL();
         <h2>Login mit Ihrem Churchtools Account</h2>
         <form action="selectcalendars.php" method="post">
             <?php if (!isset($serverURL)) { ?>
-             <div class="form-group row">
+             <div class="mb-3 row">
                  <label for="serverURL" class="col-sm-2 col-form-label">Server URL</label>
-                <input type="text" name="serverURL" required="required" placeholder="your.church.tools">
+                 <div class="col-sm-6">
+                     <input type="text" class="form-control" id="serverURL" name="serverURL" required="required" placeholder="your.church.tools">
+                 </div>
              </div>
             <?php } ?>
-             <div class="form-group row">
+             <div class="mb-3 row">
                  <label for="email" class="col-sm-2 col-form-label">E-Mail</label>
-                <input type="text" name="email" required="required" placeholder="your churchtool login">
+                 <div class="col-sm-6">
+                     <input type="text" class="form-control" id="email" name="email" required="required" placeholder="your churchtool login" autocomplete="username">
+                 </div>
              </div>
-             <div class="form-group row">
+             <div class="mb-3 row">
                  <label for="password" class="col-sm-2 col-form-label">Passwort</label>
-            <input type="password" name="password" required="required">
+                 <div class="col-sm-6">
+                     <input type="password" class="form-control" id="password" name="password" required="required" autocomplete="current-password">
+                 </div>
              </div>
-             <div class="form-group row">
-                 <label for="submit" class="col-sm-2 col-form-label"></label>
-                 <button type="submit" class="btn btn-primary">Anmelden <i class="fa fa-sign-in" aria-hidden="true"></i></button>
-            <input type="hidden" name="csrfToken" value="<?= h(ctCsrfToken()) ?>">
+             <div class="mb-3 row">
+                 <div class="col-sm-6 offset-sm-2">
+                     <button type="submit" class="btn btn-primary">Anmelden <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i></button>
+                     <input type="hidden" name="csrfToken" value="<?= h(ctCsrfToken()) ?>">
+                 </div>
              </div>
         </form>
         </div>
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </body>
 </html>

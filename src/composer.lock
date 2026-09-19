@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9452a78d8c890547ddb4e83def3ca8e1",
+    "content-hash": "c2f56dfc0d90d9e3f692bea246ffc613",
     "packages": [
         {
             "name": "5pm-hdh/churchtools-api",
